@@ -1,0 +1,839 @@
+<title>Guía del código SOS USM</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: technical handbook — sticky table of contents on the left, one reading column, code and diagrams in their own scroll boxes.
+   Palette follows the SOS USM app: institutional blue on cool white; red only for the SOS / critical path. */
+:root {
+  --bg: #f5f7fc;
+  --panel: #ffffff;
+  --ink: #0f1b33;
+  --muted: #55637f;
+  --line: #dde4f0;
+  --accent: #1554d1;
+  --accent-ink: #0f3c9e;
+  --accent-soft: #e9f0ff;
+  --rojo: #c8283a;
+  --rojo-soft: #fdecee;
+  --ok: #0f8a4f;
+  --ok-soft: #e4f5ec;
+  --aviso: #8a5200;
+  --aviso-soft: #fff4e0;
+  --code-bg: #f0f3fa;
+  --code-ink: #1b2540;
+  --hl-kw: #8b2bb9;
+  --hl-str: #0d7a43;
+  --hl-com: #6b7891;
+  --hl-num: #b0520a;
+  --hl-fn: #1554d1;
+  --f-texto: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b1122; --panel: #121a30; --ink: #e6ecf8; --muted: #9aa8c4; --line: #24304d;
+    --accent: #6f9bff; --accent-ink: #a9c3ff; --accent-soft: #1a2747;
+    --rojo: #ff7480; --rojo-soft: #3a1a24; --ok: #5fd39a; --ok-soft: #12301f; --aviso: #ffc46b; --aviso-soft: #33270f;
+    --code-bg: #0d1428; --code-ink: #d7e0f2;
+    --hl-kw: #d59bff; --hl-str: #7fd9a3; --hl-com: #7f8ca6; --hl-num: #ffb27a; --hl-fn: #8fb3ff;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b1122; --panel: #121a30; --ink: #e6ecf8; --muted: #9aa8c4; --line: #24304d;
+  --accent: #6f9bff; --accent-ink: #a9c3ff; --accent-soft: #1a2747;
+  --rojo: #ff7480; --rojo-soft: #3a1a24; --ok: #5fd39a; --ok-soft: #12301f; --aviso: #ffc46b; --aviso-soft: #33270f;
+  --code-bg: #0d1428; --code-ink: #d7e0f2;
+  --hl-kw: #d59bff; --hl-str: #7fd9a3; --hl-com: #7f8ca6; --hl-num: #ffb27a; --hl-fn: #8fb3ff;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-texto); font-size: 16px; line-height: 1.65; }
+a { color: var(--accent); text-underline-offset: 3px; }
+a:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+.envoltura { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+/* Cabecera */
+.cabecera { border-bottom: 1px solid var(--line); background: var(--panel); }
+.cabecera .envoltura { padding-block: 40px 32px; display: flex; flex-direction: column; gap: 14px; }
+.sello { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; font-size: 13px; color: var(--accent-ink); letter-spacing: .04em; text-transform: uppercase; }
+.sello svg { width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0; }
+h1 { margin: 0; font-size: clamp(30px, 4.4vw, 44px); line-height: 1.12; font-weight: 800; letter-spacing: -.025em; text-wrap: balance; max-width: 22ch; }
+.bajada { margin: 0; max-width: 64ch; color: var(--muted); font-size: 17px; }
+.datos-rapidos { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.datos-rapidos span { font-size: 13px; padding: 5px 11px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* Rejilla principal */
+.rejilla { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 48px; padding-block: 36px 80px; }
+.indice { position: sticky; top: max(20px, env(safe-area-inset-top, 0px)); align-self: start; max-height: calc(100vh - 40px); overflow-y: auto; }
+.indice p { margin: 0 0 8px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.indice ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; counter-reset: sec; }
+.indice li { counter-increment: sec; }
+.indice a { display: flex; gap: 8px; padding: 5px 8px; border-radius: 8px; color: var(--muted); text-decoration: none; font-size: 14px; line-height: 1.35; }
+.indice a::before { content: counter(sec, decimal-leading-zero); font-family: var(--f-mono); font-size: 11px; padding-top: 2px; opacity: .7; }
+.indice a:hover, .indice a.activo { background: var(--accent-soft); color: var(--accent-ink); }
+.contenido { min-width: 0; max-width: 780px; }
+
+@media (max-width: 960px) {
+  .rejilla { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .indice { position: static; max-height: none; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
+  .indice ol { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+}
+
+/* Secciones */
+section { padding-top: 20px; margin-bottom: 52px; }
+section > h2 { font-size: 26px; line-height: 1.2; letter-spacing: -.015em; margin: 0 0 6px; font-weight: 800; text-wrap: balance; }
+.num-sec { display: block; font-family: var(--f-mono); font-size: 12px; color: var(--accent); font-weight: 600; letter-spacing: .06em; margin-bottom: 6px; }
+h3 { font-size: 19px; margin: 34px 0 8px; font-weight: 700; letter-spacing: -.01em; }
+h4 { font-size: 15.5px; margin: 22px 0 6px; font-weight: 700; }
+p { margin: 0 0 14px; }
+ul, ol { padding-left: 22px; margin: 0 0 14px; }
+li { margin-bottom: 5px; }
+strong { font-weight: 700; }
+code { font-family: var(--f-mono); font-size: .86em; background: var(--code-bg); color: var(--code-ink); padding: 1px 6px; border-radius: 5px; overflow-wrap: anywhere; }
+
+/* Bloques de código */
+.codigo { margin: 14px 0 20px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--code-bg); }
+.codigo .archivo { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 7px 12px; font-family: var(--f-mono); font-size: 12px; color: var(--muted); border-bottom: 1px solid var(--line); background: var(--panel); }
+.codigo .archivo b { color: var(--ink); font-weight: 600; }
+.codigo pre { margin: 0; padding: 14px 16px; overflow-x: auto; font-family: var(--f-mono); font-size: 13px; line-height: 1.6; color: var(--code-ink); }
+.codigo pre code { background: none; padding: 0; font-size: inherit; color: inherit; }
+.hljs-keyword, .hljs-built_in, .hljs-literal { color: var(--hl-kw); }
+.hljs-string, .hljs-regexp, .hljs-template-string { color: var(--hl-str); }
+.hljs-comment { color: var(--hl-com); font-style: italic; }
+.hljs-number { color: var(--hl-num); }
+.hljs-title, .hljs-title.function_, .hljs-attr, .hljs-property { color: var(--hl-fn); }
+.hljs-tag, .hljs-name { color: var(--hl-kw); }
+
+/* Notas y avisos */
+.nota { border-radius: 12px; padding: 13px 16px; margin: 16px 0; font-size: 15px; background: var(--accent-soft); color: var(--ink); }
+.nota b:first-child { color: var(--accent-ink); }
+.nota.priv { background: var(--ok-soft); }
+.nota.priv b:first-child { color: var(--ok); }
+.nota.alerta { background: var(--aviso-soft); }
+.nota.alerta b:first-child { color: var(--aviso); }
+.nota p:last-child { margin-bottom: 0; }
+
+/* Tablas */
+.tabla { overflow-x: auto; margin: 14px 0 20px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 700; background: var(--bg); }
+tr:last-child td { border-bottom: 0; }
+td code { white-space: nowrap; }
+.metodo { font-family: var(--f-mono); font-size: 12px; font-weight: 600; padding: 2px 7px; border-radius: 6px; }
+.metodo.get { background: var(--ok-soft); color: var(--ok); }
+.metodo.post { background: var(--accent-soft); color: var(--accent-ink); }
+
+/* Árbol de carpetas */
+.arbol { font-family: var(--f-mono); font-size: 13px; line-height: 1.75; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; overflow-x: auto; white-space: pre; margin: 14px 0 20px; }
+.arbol .d { color: var(--accent-ink); font-weight: 600; }
+.arbol .c { color: var(--muted); }
+
+/* Ficha de archivo */
+.archivo-ficha { border: 1px solid var(--line); border-radius: 14px; background: var(--panel); padding: 16px 18px 6px; margin: 16px 0; }
+.archivo-ficha > .ruta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; margin-bottom: 8px; }
+.archivo-ficha > .ruta code { font-size: 14px; font-weight: 600; background: var(--accent-soft); color: var(--accent-ink); }
+.archivo-ficha > .ruta span { font-size: 13px; color: var(--muted); }
+.archivo-ficha .codigo { margin-top: 10px; }
+
+/* Diagramas */
+.diagrama { overflow-x: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin: 16px 0 22px; }
+.diagrama svg { display: block; min-width: 760px; width: 100%; height: auto; }
+.svg-caja { fill: var(--panel); stroke: var(--line); stroke-width: 1.5; }
+.svg-grupo { fill: var(--bg); stroke: var(--accent); stroke-width: 1.5; }
+.svg-grupo-r { fill: var(--rojo-soft); stroke: var(--rojo); stroke-width: 1.5; }
+.svg-sub { fill: var(--accent-soft); stroke: none; }
+.svg-t { fill: var(--ink); font-family: var(--f-texto); font-size: 14px; font-weight: 700; }
+.svg-s { fill: var(--muted); font-family: var(--f-texto); font-size: 12px; }
+.svg-c { fill: var(--accent-ink); font-family: var(--f-mono); font-size: 12px; font-weight: 600; }
+.svg-flecha { stroke: var(--accent); stroke-width: 2; fill: none; }
+.svg-flecha-d { stroke: var(--muted); stroke-width: 1.8; fill: none; stroke-dasharray: 6 5; }
+.svg-punta { fill: var(--accent); }
+.svg-punta-d { fill: var(--muted); }
+.svg-etq { fill: var(--accent-ink); font-family: var(--f-texto); font-size: 12px; font-weight: 600; }
+.svg-etq-d { fill: var(--muted); font-family: var(--f-texto); font-size: 12px; font-weight: 600; }
+pre.mermaid { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px; overflow-x: auto; margin: 14px 0 20px; font-family: var(--f-mono); font-size: 12px; color: var(--muted); }
+
+/* Pasos */
+.pasos { list-style: none; padding: 0; counter-reset: paso; display: flex; flex-direction: column; gap: 10px; margin: 14px 0 20px; }
+.pasos li { counter-increment: paso; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 12px; margin: 0; }
+.pasos li::before { content: counter(paso); width: 30px; height: 30px; border-radius: 9px; background: var(--accent-soft); color: var(--accent-ink); font-weight: 800; font-size: 14px; display: grid; place-items: center; font-variant-numeric: tabular-nums; }
+
+/* Pipeline de la IA */
+.tuberia { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 16px 0 22px; }
+.etapa { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; min-width: 0; }
+.etapa small { display: block; font-family: var(--f-mono); font-size: 11px; color: var(--accent); font-weight: 600; margin-bottom: 4px; }
+.etapa b { display: block; font-size: 15px; margin-bottom: 4px; }
+.etapa p { margin: 0; font-size: 13.5px; color: var(--muted); line-height: 1.5; }
+.etapa code { font-size: 12px; }
+@media (max-width: 720px) { .tuberia { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+@media (max-width: 440px) { .tuberia { grid-template-columns: minmax(0, 1fr); } }
+
+/* Resultado de ejemplo */
+.traza { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; margin: 16px 0 22px; }
+.traza > div { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 12px; padding: 11px 16px; border-bottom: 1px solid var(--line); }
+.traza > div:last-child { border-bottom: 0; }
+.traza dt, .traza .k { font-size: 13px; color: var(--muted); font-weight: 600; }
+.traza .v { min-width: 0; font-size: 14.5px; }
+.traza .v code { white-space: normal; }
+.chip { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px; margin: 0 4px 4px 0; }
+.chip.critica { background: var(--rojo); color: #fff; }
+.chip.azul { background: var(--accent-soft); color: var(--accent-ink); }
+@media (max-width: 560px) { .traza > div { grid-template-columns: minmax(0, 1fr); gap: 2px; } }
+
+/* Preguntas */
+details { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 10px; }
+summary { cursor: pointer; padding: 13px 16px; font-weight: 700; list-style: none; display: flex; justify-content: space-between; gap: 12px; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "+"; color: var(--accent); font-weight: 800; font-size: 18px; line-height: 1; }
+details[open] summary::after { content: "–"; }
+details > div { padding: 0 16px 6px; color: var(--ink); }
+
+.pie { border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+.pie .envoltura { padding-block: 22px 32px; }
+</style>
+
+<header class="cabecera">
+  <div class="envoltura">
+    <span class="sello">
+      <svg viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="116" fill="#1554d1"/><path d="M256 84l150 56v108c0 92-63 166-150 186-87-20-150-94-150-186V140z" fill="#fff"/><text x="256" y="318" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="118" fill="#0f3c9e">SOS</text></svg>
+      Tesis · Universidad Santa María
+    </span>
+    <h1>Guía del código SOS USM</h1>
+    <p class="bajada">Qué hace el sistema, cómo viajan los datos desde el teléfono hasta los Bomberos Universitarios y qué hace cada archivo. Pensada para leerla de arriba abajo una vez y luego usarla como referencia al preparar la defensa.</p>
+    <div class="datos-rapidos">
+      <span>JavaScript en todo el sistema</span>
+      <span>3 aplicaciones + 1 motor de IA</span>
+      <span>≈ 3.600 líneas de código propio</span>
+      <span>IA sin internet: 96,7 % de exactitud</span>
+    </div>
+  </div>
+</header>
+
+<div class="envoltura rejilla">
+  <nav class="indice" aria-label="Contenido">
+    <p>Contenido</p>
+    <ol>
+      <li><a href="#resumen">El sistema en una página</a></li>
+      <li><a href="#arquitectura">Arquitectura</a></li>
+      <li><a href="#tecnologias">Tecnologías</a></li>
+      <li><a href="#carpetas">Carpetas y archivos</a></li>
+      <li><a href="#recorridos">Recorridos paso a paso</a></li>
+      <li><a href="#app">La app móvil</a></li>
+      <li><a href="#servidor">El servidor</a></li>
+      <li><a href="#central">La central de bomberos</a></li>
+      <li><a href="#ia">La IA por dentro</a></li>
+      <li><a href="#api">API y eventos</a></li>
+      <li><a href="#datos">Modelo de datos</a></li>
+      <li><a href="#privacidad">Privacidad y seguridad</a></li>
+      <li><a href="#ejecutar">Cómo ejecutarlo</a></li>
+      <li><a href="#preguntas">Preguntas del jurado</a></li>
+      <li><a href="#limitaciones">Limitaciones y próximos pasos</a></li>
+    </ol>
+  </nav>
+
+  <main class="contenido">
+
+    <!-- 1 -->
+    <section id="resumen">
+      <span class="num-sec">01</span>
+      <h2>El sistema en una página</h2>
+      <p><strong>SOS USM</strong> permite que cualquier miembro de la comunidad de la Universidad Santa María (estudiantes, profesores, personal administrativo, seguridad y limpieza) pida ayuda desde su teléfono. Los <strong>Bomberos Universitarios</strong> reciben la alerta al instante en una central web, con la ubicación GPS, un análisis de inteligencia artificial y un chat para hablar con quien reporta.</p>
+      <p>El sistema tiene tres piezas que se comunican por internet, más un motor de IA que vive en dos lugares a la vez:</p>
+      <ul>
+        <li><strong>App móvil</strong> (<code>app-movil/</code>): la usan las personas de la comunidad. Pide el GPS, ofrece el registro, permite reportar una emergencia normal o enviar una alerta SOS, y muestra recomendaciones y el chat.</li>
+        <li><strong>Servidor</strong> (<code>server.js</code>): el centro del sistema. Recibe las alertas, guarda los datos, busca la ficha del afectado, pide el análisis a la IA y reparte todo en tiempo real.</li>
+        <li><strong>Central de bomberos</strong> (<code>public/bomberos/</code>): página web donde los bomberos ven el mapa, la lista de emergencias por prioridad, la ficha médica, el chat y cambian el estado de cada caso.</li>
+        <li><strong>Motor de IA</strong> (<code>app-movil/src/ia/motorIA.js</code>): clasifica la emergencia y genera recomendaciones de primeros auxilios. Es el mismo archivo en el teléfono (funciona sin internet) y en el servidor. Cuando hay internet, el servidor además pide a Claude un análisis más fino.</li>
+      </ul>
+      <div class="nota"><b>La idea central del diseño.</b> En una emergencia no se puede depender de la señal. Por eso la recomendación de la IA se calcula en el propio teléfono, las alertas sin conexión se guardan y se reenvían solas, y la app ofrece llamar o mandar un SMS a la central, que solo necesitan señal telefónica.</div>
+    </section>
+
+    <!-- 2 -->
+    <section id="arquitectura">
+      <span class="num-sec">02</span>
+      <h2>Arquitectura</h2>
+      <p>Es una arquitectura <strong>cliente-servidor</strong> con comunicación en tiempo real. Los clientes (app y central) nunca hablan directamente entre sí: todo pasa por el servidor, que decide qué ve cada uno.</p>
+      <div class="diagrama" role="img" aria-label="Diagrama de arquitectura: el teléfono y la central se conectan al servidor; el servidor usa el motor de IA, la búsqueda del afectado, los archivos de datos y, si hay internet, Claude.">
+        <svg viewBox="0 0 1000 500" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="svg-punta"/></marker>
+            <marker id="pd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="svg-punta-d"/></marker>
+          </defs>
+          <!-- Teléfono -->
+          <rect x="20" y="30" width="270" height="330" rx="18" class="svg-grupo"/>
+          <text x="40" y="60" class="svg-t">Teléfono · App SOS USM</text>
+          <text x="40" y="78" class="svg-s">React Native + Expo</text>
+          <rect x="40" y="94" width="230" height="40" rx="9" class="svg-sub"/><text x="54" y="119" class="svg-c">Pantallas (src/app/)</text>
+          <rect x="40" y="142" width="230" height="40" rx="9" class="svg-sub"/><text x="54" y="167" class="svg-c">SOSContext · estado global</text>
+          <rect x="40" y="190" width="230" height="40" rx="9" class="svg-sub"/><text x="54" y="215" class="svg-c">motorIA · IA sin internet</text>
+          <rect x="40" y="238" width="230" height="40" rx="9" class="svg-sub"/><text x="54" y="263" class="svg-c">Cola de envío sin señal</text>
+          <rect x="40" y="286" width="230" height="40" rx="9" class="svg-sub"/><text x="54" y="311" class="svg-c">GPS · AsyncStorage</text>
+
+          <!-- Servidor -->
+          <rect x="365" y="30" width="270" height="330" rx="18" class="svg-grupo"/>
+          <text x="385" y="60" class="svg-t">Servidor</text>
+          <text x="385" y="78" class="svg-s">Node.js · Express · Socket.IO</text>
+          <rect x="385" y="94" width="230" height="40" rx="9" class="svg-sub"/><text x="399" y="119" class="svg-c">API REST + tiempo real</text>
+          <rect x="385" y="142" width="230" height="40" rx="9" class="svg-sub"/><text x="399" y="167" class="svg-c">ia.js · motor + Claude</text>
+          <rect x="385" y="190" width="230" height="40" rx="9" class="svg-sub"/><text x="399" y="215" class="svg-c">buscar-afectado.js</text>
+          <rect x="385" y="238" width="230" height="40" rx="9" class="svg-sub"/><text x="399" y="263" class="svg-c">data/*.json · datos</text>
+          <rect x="385" y="286" width="230" height="40" rx="9" class="svg-sub"/><text x="399" y="311" class="svg-c">Archivos web estáticos</text>
+
+          <!-- Central -->
+          <rect x="710" y="30" width="270" height="200" rx="18" class="svg-grupo"/>
+          <text x="730" y="60" class="svg-t">Central de bomberos</text>
+          <text x="730" y="78" class="svg-s">Navegador · HTML, CSS, JS</text>
+          <rect x="730" y="94" width="230" height="40" rx="9" class="svg-sub"/><text x="744" y="119" class="svg-c">Mapa · lista · ficha</text>
+          <rect x="730" y="142" width="230" height="40" rx="9" class="svg-sub"/><text x="744" y="167" class="svg-c">Chat · estados · sirena</text>
+          <text x="730" y="210" class="svg-s">Acceso con PIN</text>
+
+          <!-- Teléfono de bomberos -->
+          <rect x="710" y="270" width="270" height="90" rx="18" class="svg-grupo-r"/>
+          <text x="730" y="302" class="svg-t">Teléfono de la central</text>
+          <text x="730" y="322" class="svg-s">Recibe llamadas y SMS cuando</text>
+          <text x="730" y="339" class="svg-s">el usuario no tiene datos</text>
+
+          <!-- Claude -->
+          <rect x="365" y="395" width="270" height="56" rx="14" class="svg-caja"/>
+          <text x="385" y="420" class="svg-t">Claude (Anthropic)</text>
+          <text x="385" y="438" class="svg-s">Opcional · solo con internet</text>
+
+          <!-- Flechas -->
+          <path d="M292 150 H363" class="svg-flecha" marker-start="url(#p)" marker-end="url(#p)"/>
+          <text x="327.5" y="140" text-anchor="middle" class="svg-etq">HTTPS</text>
+          <path d="M292 205 H363" class="svg-flecha" marker-start="url(#p)" marker-end="url(#p)"/>
+          <text x="327.5" y="195" text-anchor="middle" class="svg-etq">WebSocket</text>
+          <path d="M637 130 H708" class="svg-flecha" marker-start="url(#p)" marker-end="url(#p)"/>
+          <text x="672.5" y="120" text-anchor="middle" class="svg-etq">WebSocket</text>
+          <path d="M500 360 V393" class="svg-flecha" marker-end="url(#p)"/>
+          <path d="M155 360 V478 H845 V362" class="svg-flecha-d" marker-end="url(#pd)"/>
+          <text x="172" y="470" class="svg-etq-d">Llamada o SMS (sin internet)</text>
+        </svg>
+      </div>
+      <p><strong>Dos canales de comunicación:</strong></p>
+      <ul>
+        <li><strong>HTTPS (API REST)</strong> para acciones puntuales que esperan respuesta: enviar un reporte, una alerta SOS o el registro.</li>
+        <li><strong>WebSocket (Socket.IO)</strong> para lo que ocurre en vivo: la ubicación que se actualiza cada pocos segundos, los cambios de estado, el chat y la sirena de la central.</li>
+      </ul>
+    </section>
+
+    <!-- 3 -->
+    <section id="tecnologias">
+      <span class="num-sec">03</span>
+      <h2>Tecnologías</h2>
+      <p>Todo el sistema está escrito en <strong>JavaScript</strong>, lo que permite compartir código entre el teléfono y el servidor (el motor de IA es literalmente el mismo archivo).</p>
+      <div class="tabla"><table>
+        <thead><tr><th>Parte</th><th>Tecnología</th><th>Para qué</th></tr></thead>
+        <tbody>
+          <tr><td>App móvil</td><td>React Native 0.88 + Expo SDK 58</td><td>Una sola base de código para Android e iOS</td></tr>
+          <tr><td>Navegación</td><td>Expo Router</td><td>Cada archivo de <code>src/app/</code> es una pantalla</td></tr>
+          <tr><td>GPS</td><td>expo-location</td><td>Ubicación en tiempo real (no necesita internet)</td></tr>
+          <tr><td>Datos en el teléfono</td><td>AsyncStorage</td><td>Guarda el registro, la emergencia activa y la cola pendiente</td></tr>
+          <tr><td>Tiempo real</td><td>Socket.IO (cliente y servidor)</td><td>Chat, estados, ubicación en vivo y alarmas</td></tr>
+          <tr><td>Servidor</td><td>Node.js + Express</td><td>API REST y archivos web</td></tr>
+          <tr><td>IA en el teléfono</td><td>Naive Bayes + sistema experto, sin librerías</td><td>Clasificar y recomendar sin conexión</td></tr>
+          <tr><td>IA en la nube</td><td>Claude, SDK oficial de Anthropic</td><td>Refinar el análisis cuando hay internet</td></tr>
+          <tr><td>Central</td><td>HTML5, CSS3, JavaScript + Leaflet</td><td>Panel web con mapa de OpenStreetMap</td></tr>
+          <tr><td>Íconos y gráficos</td><td>react-native-svg, expo-linear-gradient</td><td>Logo, íconos y el anillo animado del botón SOS</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 4 -->
+    <section id="carpetas">
+      <span class="num-sec">04</span>
+      <h2>Carpetas y archivos</h2>
+<div class="arbol"><span class="d">usm-emergencias/</span>
+├── <span class="d">app-movil/</span>                 <span class="c">App React Native (frontend principal)</span>
+│   ├── app.json                <span class="c">Nombre, permisos, IP del servidor, teléfono de bomberos</span>
+│   └── <span class="d">src/</span>
+│       ├── <span class="d">app/</span>                    <span class="c">Pantallas (una por archivo)</span>
+│       │   ├── _layout.js          <span class="c">Raíz: fuentes, estado global y navegación</span>
+│       │   ├── index.js            <span class="c">Bienvenida y permiso de GPS</span>
+│       │   ├── elegir-registro.js  <span class="c">¿Registrarte ahora o más tarde?</span>
+│       │   ├── registro.js         <span class="c">Formulario de registro (ficha)</span>
+│       │   ├── inicio.js           <span class="c">Dos botones: normal y alta prioridad</span>
+│       │   ├── reporte.js          <span class="c">Reporte normal (afectado u observador)</span>
+│       │   ├── alta-prioridad.js   <span class="c">Advertencia + botón SOS</span>
+│       │   └── emergencia.js       <span class="c">Estado, recomendaciones y chat</span>
+│       ├── <span class="d">estado/</span>SOSContext.js    <span class="c">Cerebro de la app: GPS, conexión, cola, envíos</span>
+│       ├── <span class="d">ia/</span>motorIA.js          <span class="c">IA sin internet (también la usa el servidor)</span>
+│       ├── <span class="d">componentes/</span>             <span class="c">BotonSOS, ContactoDirecto, UI, Icono</span>
+│       └── tema.js                 <span class="c">Colores, fuentes y configuración</span>
+├── server.js                  <span class="c">Servidor: API REST + Socket.IO + almacenamiento</span>
+├── ia.js                      <span class="c">Análisis: motor local + Claude</span>
+├── buscar-afectado.js         <span class="c">Busca la ficha del afectado que nombra un observador</span>
+├── <span class="d">public/bomberos/</span>           <span class="c">Central de bomberos (HTML, CSS, JS)</span>
+├── <span class="d">public/app/</span>                <span class="c">Versión web anterior de la app (alternativa)</span>
+├── <span class="d">data/</span>                      <span class="c">incidentes.json y perfiles.json (se crean solos)</span>
+├── <span class="d">scripts/</span>evaluar-ia.js      <span class="c">Mide la exactitud del motor de IA</span>
+└── demo.html                  <span class="c">Demostración autónoma para la defensa</span></div>
+    </section>
+
+    <!-- 5 -->
+    <section id="recorridos">
+      <span class="num-sec">05</span>
+      <h2>Recorridos paso a paso</h2>
+      <p>La mejor forma de entender el código es seguir lo que ocurre en cada situación. Estos son los cinco recorridos principales.</p>
+
+      <h3>A. Primer uso de la app</h3>
+      <ol class="pasos">
+        <li><span><code>index.js</code> muestra la bienvenida. Al tocar <em>Permitir ubicación</em>, <code>SOSContext.iniciarGPS()</code> pide el permiso y empieza a seguir la posición con <code>Location.watchPositionAsync</code>.</span></li>
+        <li><span>Si la persona no está registrada, la app va a <code>elegir-registro.js</code>: <em>Registrarme ahora</em> o <em>Más tarde</em>. Esta pregunta se repite al abrir la app hasta que se registre.</span></li>
+        <li><span>En <code>registro.js</code> llena sus datos. <code>guardarPerfil()</code> los guarda en el teléfono (AsyncStorage) y los envía a <code>POST /api/perfil</code>. Si no hay internet, quedan en el teléfono y se suben al reconectar.</span></li>
+        <li><span>Llega a <code>inicio.js</code>. Desde ese momento el teléfono envía su ubicación al servidor cada 3 segundos por el WebSocket.</span></li>
+      </ol>
+
+      <h3>B. Reporte de una emergencia normal</h3>
+<pre class="mermaid">
+sequenceDiagram
+  autonumber
+  actor P as Persona
+  participant A as App (teléfono)
+  participant S as Servidor
+  participant B as Central
+  P->>A: Elige "Otra persona" y describe lo que pasó
+  A->>A: motorIA analiza el texto (sin internet)
+  A->>S: POST /api/incidentes (datos + GPS + ficha)
+  S->>S: Busca la ficha del afectado si el observador lo conoce
+  S->>B: incidente:nuevo (alarma si prioridad 4 o 5)
+  S-->>A: Respuesta con el análisis y el chat
+  S->>S: Pide a Claude un análisis más fino (si hay internet)
+  S->>A: incidente:actualizado
+  S->>B: incidente:actualizado
+</pre>
+      <p>Lo que decide el formulario (<code>reporte.js</code>):</p>
+      <ul>
+        <li><strong>Persona registrada:</strong> solo se pregunta quién necesita ayuda (<em>Yo</em> u <em>Otra persona</em>) y qué pasó. Su nombre y edad salen del registro.</li>
+        <li><strong>Persona sin registro:</strong> además se pide tipo de usuario, nombre y edad.</li>
+        <li><strong>Observador:</strong> se pregunta <em>¿Conoces a la persona afectada?</em>. Si responde que sí, se piden nombre, edad y cédula del afectado para buscar su ficha. Los datos del observador nunca se usan como si fuera el afectado.</li>
+      </ul>
+
+      <h3>C. Alerta SOS de alta prioridad</h3>
+      <ol class="pasos">
+        <li><span><code>alta-prioridad.js</code> muestra la advertencia de uso indebido. El botón SOS está desactivado hasta marcar la casilla de confirmación.</span></li>
+        <li><span><code>BotonSOS.js</code> exige mantenerlo presionado <strong>3 segundos</strong>: un anillo blanco se llena mientras tanto. Si se suelta antes, no pasa nada.</span></li>
+        <li><span><code>SOSContext.enviarSOS()</code> llama a <code>POST /api/panico</code>. No pide datos: el servidor adjunta solo la ficha registrada del dispositivo.</span></li>
+        <li><span>El servidor emite <code>alarma:panico</code>: la central muestra un banner rojo, suena la sirena y la alerta se coloca primera en la lista con prioridad 5.</span></li>
+      </ol>
+
+      <h3>D. Sin señal</h3>
+<pre class="mermaid">
+sequenceDiagram
+  autonumber
+  participant A as App (teléfono)
+  participant C as Cola (AsyncStorage)
+  participant S as Servidor
+  A->>S: POST /api/incidentes
+  S--xA: Sin respuesta en 8 segundos
+  A->>A: Muestra la recomendación del motorIA
+  A->>C: Guarda la alerta pendiente
+  Note over A: Ofrece Llamar y SMS con ubicación
+  loop Cada 10 segundos y al reconectar
+    A->>S: procesarCola() reintenta
+  end
+  S-->>A: Alerta recibida
+  A->>C: La quita de la cola
+  A->>S: Envía los mensajes escritos sin señal
+</pre>
+      <p>Toda esta lógica está en <code>SOSContext.js</code>, en las funciones <code>enviar()</code> y <code>procesarCola()</code>. El servidor no necesita saber nada especial: recibe la alerta como si se hubiera enviado en el momento.</p>
+
+      <h3>E. Chat y cambios de estado</h3>
+      <ol class="pasos">
+        <li><span>El bombero toca <em>En camino</em> en la central. <code>bomberos.js</code> emite <code>incidente:estado</code>.</span></li>
+        <li><span>El servidor actualiza el incidente, agrega un mensaje del sistema (<em>Una unidad va en camino…</em>) y lo reenvía con <code>incidente:actualizado</code>.</span></li>
+        <li><span>El teléfono recibe el evento, vibra y actualiza la línea de tiempo: Enviada → Recibida → En camino → En sitio → Atendida.</span></li>
+        <li><span>Los mensajes del chat siguen el mismo camino con el evento <code>chat:enviar</code> y se reparten con <code>chat:mensaje</code>.</span></li>
+      </ol>
+    </section>
+
+    <!-- 6 -->
+    <section id="app">
+      <span class="num-sec">06</span>
+      <h2>La app móvil</h2>
+      <p>La app está en <code>app-movil/</code>. Sigue una regla simple: <strong>las pantallas solo muestran y recogen datos</strong>; todo lo que habla con el servidor, el GPS o la memoria del teléfono está concentrado en <code>SOSContext.js</code>.</p>
+
+      <div class="archivo-ficha">
+        <div class="ruta"><code>src/estado/SOSContext.js</code><span>368 líneas · el cerebro de la app</span></div>
+        <p>Es un <em>React Context</em>: un objeto que todas las pantallas pueden leer con <code>useSOS()</code>. Se encarga de:</p>
+        <ul>
+          <li><strong>Identidad del dispositivo:</strong> crea un identificador anónimo (<code>deviceId</code>) la primera vez y lo guarda.</li>
+          <li><strong>Perfil:</strong> carga y guarda el registro (<code>guardarPerfil</code>).</li>
+          <li><strong>GPS:</strong> <code>iniciarGPS()</code> y el modo de ubicación simulada para demostraciones.</li>
+          <li><strong>Conexión en vivo:</strong> abre el WebSocket, escucha los cambios de estado y los mensajes, y detecta cuando no hay señal (<code>sinSenal</code>).</li>
+          <li><strong>Envíos:</strong> <code>enviarReporte</code>, <code>enviarSOS</code> y <code>enviarMensaje</code>, con la cola para cuando no hay conexión.</li>
+        </ul>
+        <p>La función clave es <code>enviar()</code>. Intenta enviar; si no hay conexión, crea una emergencia local con la recomendación calculada en el teléfono y la deja en la cola:</p>
+        <div class="codigo"><div class="archivo"><b>SOSContext.js</b><span>enviar() · simplificado</span></div><pre><code class="language-javascript">try {
+  const r = await postJSON(ruta, { deviceId, ...datos, ubicacion: ubicRef.current, perfil: perfilEnvio });
+  const inc = await r.json();
+  if (!r.ok) throw new ErrorServidor(inc.error || "No se pudo enviar.");
+  fijarIncidente(inc);
+  return inc;
+} catch (err) {
+  if (err instanceof ErrorServidor) throw err;   // error de validación: no se reintenta
+  // Sin conexión: emergencia local con la recomendación calculada en el teléfono
+  const local = { id: idLocal, local: true, estado: "pendiente", analisis: analisisLocal, /* … */ };
+  guardarCola([...colaRef.current, { idLocal, tipo, datos }]);
+  fijarIncidente(local);
+  return local;
+}</code></pre></div>
+        <p><code>postJSON</code> usa un tiempo límite de 8 segundos (<code>AbortController</code>), para que con mala señal la persona no se quede esperando.</p>
+      </div>
+
+      <div class="archivo-ficha">
+        <div class="ruta"><code>src/app/reporte.js</code><span>Formulario de reporte</span></div>
+        <p>Decide qué preguntar según el registro y el rol, valida, y arma el objeto que se envía. Fragmento que construye los datos del afectado cuando reporta un observador:</p>
+        <div class="codigo"><div class="archivo"><b>reporte.js</b><span>enviar()</span></div><pre><code class="language-javascript">// Los datos del observador nunca se usan como si fuera el afectado
+const afectado = rol === "observador"
+  ? conoce
+    ? { conocido: true, nombre: afNombre.trim(), edad: afEdad.trim(), cedula: afCedula.trim() }
+    : { conocido: false }
+  : undefined;
+
+await enviarReporte({ ...datosPersona, rol, afectado, descripcion: descripcion.trim() });</code></pre></div>
+      </div>
+
+      <div class="archivo-ficha">
+        <div class="ruta"><code>src/componentes/BotonSOS.js</code><span>Botón de 3 segundos</span></div>
+        <p>Usa la librería de animación de React Native. Al presionar (<code>onPressIn</code>) arranca una animación de 0 a 1 que dura 3 segundos y dibuja el anillo. Si se suelta antes (<code>onPressOut</code>), la animación se detiene y no se envía nada. Solo si termina completa se llama a <code>onCompletado</code>.</p>
+        <div class="codigo"><div class="archivo"><b>BotonSOS.js</b><span>iniciar() · simplificado</span></div><pre><code class="language-javascript">animacion.current = Animated.timing(progreso, {
+  toValue: 1, duration: duracion, easing: Easing.linear, useNativeDriver: false,
+});
+animacion.current.start(({ finished }) =&gt; {
+  progreso.setValue(0);
+  if (finished) onCompletado?.();   // solo si se mantuvo presionado los 3 segundos
+});</code></pre></div>
+      </div>
+
+      <h3>Resto de pantallas y componentes</h3>
+      <div class="tabla"><table>
+        <thead><tr><th>Archivo</th><th>Qué hace</th></tr></thead>
+        <tbody>
+          <tr><td><code>_layout.js</code></td><td>Carga las fuentes, envuelve la app en <code>SOSProvider</code> y define la pila de pantallas.</td></tr>
+          <tr><td><code>index.js</code></td><td>Bienvenida y permiso de GPS. Si el permiso ya existe, salta directo a la siguiente pantalla.</td></tr>
+          <tr><td><code>elegir-registro.js</code></td><td>Solo la pregunta <em>¿Quieres registrarte ahora o más tarde?</em> y dos botones.</td></tr>
+          <tr><td><code>registro.js</code></td><td>Formulario en tres secciones (personal, médica, contacto), con validación y casilla de autorización obligatoria.</td></tr>
+          <tr><td><code>inicio.js</code></td><td>Botón azul de reporte normal (mitad de la pantalla) y botón rojo de alta prioridad (cuarto inferior). Muestra avisos de registro y de falta de señal.</td></tr>
+          <tr><td><code>alta-prioridad.js</code></td><td>Advertencia, ejemplos de uso, aviso legal, qué datos recibirán los bomberos y el botón SOS.</td></tr>
+          <tr><td><code>emergencia.js</code></td><td>Estado con línea de tiempo, recomendaciones de la IA, chat y botones de llamada y SMS cuando no hay señal.</td></tr>
+          <tr><td><code>ContactoDirecto.js</code></td><td>Abre la llamada o un SMS con nombre, cédula y enlace de Google Maps, usando <code>Linking</code>.</td></tr>
+          <tr><td><code>UI.js</code>, <code>Icono.js</code></td><td>Cabecera, chip de GPS, botones, íconos SVG y logo.</td></tr>
+          <tr><td><code>tema.js</code></td><td>Colores, fuentes, dirección del servidor y teléfono de la central (se leen de <code>app.json</code>).</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 7 -->
+    <section id="servidor">
+      <span class="num-sec">07</span>
+      <h2>El servidor</h2>
+      <p><code>server.js</code> (408 líneas) es un solo programa de Node.js que hace cuatro cosas: sirve los archivos web, expone la API REST, mantiene las conexiones en tiempo real y guarda los datos.</p>
+
+      <h3>Cómo se crea un incidente</h3>
+      <p>Toda emergencia, sea reporte o SOS, pasa por <code>crearIncidente()</code>. Observa que la ficha del dispositivo se adjunta automáticamente:</p>
+      <div class="codigo"><div class="archivo"><b>server.js</b><span>crearIncidente() · simplificado</span></div><pre><code class="language-javascript">function crearIncidente({ tipo, deviceId, reportante, descripcion, ubicacion }) {
+  const inc = {
+    id: nuevoId(),
+    tipo,              // 'reporte' | 'panico'
+    estado: "nuevo",   // nuevo -&gt; recibido -&gt; en_camino -&gt; en_sitio -&gt; resuelto
+    creadoEn: Date.now(),
+    deviceId,
+    reportante: reportante || null,
+    perfil: perfiles[deviceId] || null,   // ficha registrada previamente (si existe)
+    descripcion: descripcion || "",
+    ubicacion: ubicacion || dispositivos.get(deviceId)?.ubicacion || null,
+    analisis: null, asignado: null, mensajes: [],
+    historial: [{ estado: "nuevo", ts: Date.now() }],
+  };
+  incidentes.unshift(inc);
+  return inc;
+}</code></pre></div>
+
+      <h3>Qué recibe el teléfono y qué recibe la central</h3>
+      <p>Esta función es la base de la confidencialidad. La central recibe el incidente completo; el teléfono, solo estos siete campos:</p>
+      <div class="codigo"><div class="archivo"><b>server.js</b><span>vistaUsuario()</span></div><pre><code class="language-javascript">// Vista pública de un incidente para el usuario de la app
+function vistaUsuario(inc) {
+  const { id, tipo, estado, creadoEn, analisis, mensajes, asignado } = inc;
+  return { id, tipo, estado, creadoEn, asignado, analisis, mensajes };
+}</code></pre></div>
+      <p>Así, la ficha médica del afectado (<code>perfilAfectado</code>), la coincidencia y los datos del reportante nunca llegan al teléfono de quien reportó.</p>
+
+      <h3>Tiempo real con salas</h3>
+      <p>Socket.IO agrupa las conexiones en <strong>salas</strong>. Los bomberos que entran con el PIN se unen a la sala <code>bomberos</code>. Cada teléfono con una emergencia activa se une a la sala <code>inc:&lt;id&gt;</code>. Así un mismo evento se envía en dos versiones:</p>
+      <div class="codigo"><div class="archivo"><b>server.js</b><span>emitirActualizacion()</span></div><pre><code class="language-javascript">function emitirActualizacion(inc) {
+  io.to("bomberos").emit("incidente:actualizado", inc);                   // todo
+  io.to("inc:" + inc.id).emit("incidente:actualizado", vistaUsuario(inc)); // lo justo
+  guardar();
+}</code></pre></div>
+
+      <div class="archivo-ficha">
+        <div class="ruta"><code>ia.js</code><span>137 líneas · análisis en dos etapas</span></div>
+        <p><code>analizarReporte()</code> primero llama al motor local (respuesta inmediata) y, si hay clave de API, pide después a Claude un análisis más fino. A Claude se le exige responder en un <strong>JSON con estructura fija</strong> (categoría, severidad, prioridad, resumen, recomendaciones, recursos), así el servidor siempre recibe datos que puede usar.</p>
+        <div class="codigo"><div class="archivo"><b>ia.js</b><span>analizarReporte() · simplificado</span></div><pre><code class="language-javascript">async function analizarReporte(reporte, alActualizar) {
+  const local = analizarLocal(reporte);   // motor del teléfono: inmediato
+  alActualizar(local);
+  if (!cliente) return local;             // sin clave de API: se queda con el local
+  try {
+    const remoto = await analizarConClaude(reporte);
+    alActualizar(remoto);                 // Claude refina el análisis
+    return remoto;
+  } catch (err) {
+    return local;                         // si Claude falla, nada se rompe
+  }
+}</code></pre></div>
+      </div>
+
+      <div class="archivo-ficha">
+        <div class="ruta"><code>buscar-afectado.js</code><span>48 líneas · encontrar la ficha del afectado</span></div>
+        <p>Cuando un observador conoce al afectado, el servidor busca su ficha entre los perfiles registrados. La regla de diseño es: <strong>es preferible no enviar ninguna ficha que enviar la de la persona equivocada</strong>.</p>
+        <div class="tabla"><table>
+          <thead><tr><th>Datos del observador</th><th>Resultado</th></tr></thead>
+          <tbody>
+            <tr><td>Cédula que coincide</td><td>Ficha enviada, confianza <strong>alta</strong></td></tr>
+            <tr><td>Nombre y apellido + edad (±1 año)</td><td>Ficha enviada, confianza <strong>media</strong>, con aviso de verificar</td></tr>
+            <tr><td>Varias personas coinciden</td><td>Ninguna ficha (<code>ambiguo</code>)</td></tr>
+            <tr><td>Solo un nombre, o sin edad</td><td>No se busca (<code>insuficiente</code>)</td></tr>
+          </tbody>
+        </table></div>
+        <p>La comparación ignora tildes y mayúsculas, acepta nombres parciales ("Luis Ramírez" encuentra a "Luis Alberto Ramírez") y cédulas escritas con o sin puntos.</p>
+      </div>
+
+      <h3>Almacenamiento</h3>
+      <p>En este prototipo los datos se guardan en dos archivos: <code>data/incidentes.json</code> y <code>data/perfiles.json</code>. El servidor los lee al arrancar y los reescribe tras cada cambio (con una pequeña espera de 300 ms para agrupar escrituras). Para producción se reemplazarán por una base de datos PostgreSQL.</p>
+    </section>
+
+    <!-- 8 -->
+    <section id="central">
+      <span class="num-sec">08</span>
+      <h2>La central de bomberos</h2>
+      <p>Está en <code>public/bomberos/</code> y la sirve el mismo servidor en <code>/bomberos/</code>. Es HTML, CSS y JavaScript sin frameworks; <code>bomberos.js</code> (481 líneas) contiene toda la lógica.</p>
+      <ul>
+        <li><strong>Acceso:</strong> se conecta al WebSocket enviando el PIN. Si es correcto, el servidor responde con <code>auth:ok</code> y la lista completa de incidentes.</li>
+        <li><strong>Lista:</strong> ordenada primero por activos, luego por prioridad y luego por hora. Las alertas SOS sin atender parpadean.</li>
+        <li><strong>Mapa:</strong> Leaflet con OpenStreetMap. Muestra cada emergencia con el color de su prioridad, el recorrido GPS de la persona y los usuarios conectados.</li>
+        <li><strong>Detalle:</strong> estado y unidad asignada, ubicación, reportante, persona afectada con su nivel de coincidencia, ficha médica, análisis de la IA y chat con respuestas rápidas.</li>
+        <li><strong>Alarma:</strong> una sirena generada con Web Audio (sin archivos de sonido) para alertas SOS y prioridades 4 y 5, más notificaciones del navegador.</li>
+      </ul>
+      <p>Cada vez que llega un evento, la central vuelve a dibujar las partes afectadas. Para no molestar al bombero que está escribiendo, conserva el texto del chat y el foco al redibujar.</p>
+    </section>
+
+    <!-- 9 -->
+    <section id="ia">
+      <span class="num-sec">09</span>
+      <h2>La IA por dentro</h2>
+      <p><code>motorIA.js</code> (605 líneas) combina dos técnicas clásicas de inteligencia artificial. No necesita internet, no usa librerías externas y responde en menos de un milisegundo.</p>
+      <div class="tuberia">
+        <div class="etapa"><small>1 · LENGUAJE</small><b>Preparar el texto</b><p>Minúsculas, sin tildes, sin palabras vacías y con un <em>stemmer</em> que reduce cada palabra a su raíz.</p></div>
+        <div class="etapa"><small>2 · APRENDIZAJE</small><b>Naive Bayes</b><p>Calcula qué tan probable es cada uno de los 13 tipos de emergencia, a partir de 137 frases de entrenamiento.</p></div>
+        <div class="etapa"><small>3 · REGLAS</small><b>Sistema experto</b><p>Suma evidencia de palabras clave, detecta señales de riesgo vital y aplica reglas de prioridad.</p></div>
+        <div class="etapa"><small>4 · RESPUESTA</small><b>Recomendación</b><p>Severidad, prioridad 1 a 5, pasos de primeros auxilios según el rol, y personalización con la ficha.</p></div>
+      </div>
+
+      <h3>1. Preparar el texto</h3>
+      <p>El <em>stemmer</em> quita terminaciones verbales del español, de modo que "robando", "robaron" y "robo" se vuelven la misma raíz <code>rob</code>. Las negaciones se conservan unidas: "no respira" produce el token <code>no_resp</code>, que es muy distinto de "respira".</p>
+      <div class="codigo"><div class="archivo"><b>motorIA.js</b><span>tokenizar()</span></div><pre><code class="language-javascript">function tokenizar(texto) {
+  const palabras = normalizar(texto).split(" ").filter(Boolean);
+  const tokens = [];
+  for (let i = 0; i &lt; palabras.length; i++) {
+    const p = palabras[i];
+    if (p === "no" &amp;&amp; palabras[i + 1]) tokens.push("no_" + raiz(palabras[i + 1])); // negaciones: "no respira"
+    if (!PALABRAS_VACIAS.has(p) &amp;&amp; p.length &gt; 1) tokens.push(raiz(p));
+  }
+  return tokens;
+}</code></pre></div>
+
+      <h3>2. Naive Bayes</h3>
+      <p>Es un clasificador probabilístico. Durante el entrenamiento cuenta cuántas veces aparece cada raíz en los ejemplos de cada tipo de emergencia. Para un texto nuevo, calcula para cada tipo:</p>
+      <p style="text-align:center"><code>log P(tipo) + Σ log P(palabra | tipo)</code></p>
+      <p>Usa logaritmos para no trabajar con números diminutos, y <strong>suavizado de Laplace</strong> (+1 a cada conteo) para que una palabra nunca vista no anule la probabilidad.</p>
+      <div class="codigo"><div class="archivo"><b>motorIA.js</b><span>clasificarNB()</span></div><pre><code class="language-javascript">for (const [nombre, c] of Object.entries(MODELO.clases)) {
+  let lp = Math.log(c.docs / MODELO.totalDocs);                              // probabilidad previa
+  for (const t of tokens) lp += Math.log(((c.conteo[t] || 0) + 1) / (c.total + V)); // Laplace
+  puntajes[nombre] = lp;
+}</code></pre></div>
+
+      <h3>3. Sistema experto</h3>
+      <ul>
+        <li><strong>Evidencia de palabras clave:</strong> cada palabra clave de un tipo (por ejemplo "humo" para incendio) suma 3 puntos a su puntaje.</li>
+        <li><strong>Confianza:</strong> los puntajes se convierten en porcentajes (función <em>softmax</em>). Si la confianza es muy baja y no hay palabras clave, se responde como "emergencia no especificada" en vez de adivinar.</li>
+        <li><strong>Señales de riesgo vital:</strong> frases como "no respira", "mucha sangre", "arma" o "atrapado" suben la severidad a crítica.</li>
+        <li><strong>Edad vulnerable:</strong> 60 años o más, o 12 o menos, sube un nivel la severidad.</li>
+        <li><strong>Regla de paro cardiorrespiratorio:</strong> si la persona no respira y además está inconsciente o hay señales cardíacas, se responde con el protocolo de RCP, sin importar lo que diga el clasificador.</li>
+        <li><strong>Ficha médica:</strong> si quien reporta es el afectado y está registrado, se personaliza. Por ejemplo, con asma registrada y dificultad respiratoria: "usa tu inhalador de rescate ahora".</li>
+      </ul>
+
+      <h3>Ejemplo real, paso a paso</h3>
+      <div class="traza">
+        <div><span class="k">Texto</span><span class="v">"Un profesor se desmayó en el auditorio y no respira" · reporta un observador</span></div>
+        <div><span class="k">Tokens</span><span class="v"><code>profes</code> <code>desmay</code> <code>audito</code> <code>no_resp</code> <code>no</code> <code>resp</code></span></div>
+        <div><span class="k">Naive Bayes (top 3)</span><span class="v">respiratoria −31,1 · inconsciencia −33,6 · crisis emocional −34,8</span></div>
+        <div><span class="k">Reglas</span><span class="v">"no respira" + "desmayó" → regla de paro cardiorrespiratorio. "no respira" es señal de riesgo vital.</span></div>
+        <div><span class="k">Resultado</span><span class="v"><span class="chip critica">CRÍTICA · P5</span><span class="chip azul">Posible paro cardiorrespiratorio</span><span class="chip azul">confianza 92 %</span></span></div>
+        <div><span class="k">Primera instrucción</span><span class="v">"Inicia RCP ya: coloca las manos en el centro del pecho y comprime fuerte y rápido (100 a 120 por minuto)."</span></div>
+      </div>
+      <p>Este ejemplo muestra por qué se combinan las dos técnicas: el clasificador aprendido acierta en que es un problema respiratorio, pero solo la regla experta reconoce que es una situación de RCP.</p>
+
+      <h3>Evaluación</h3>
+      <p><code>scripts/evaluar-ia.js</code> prueba el motor con 30 frases que <strong>no</strong> están en el entrenamiento. Resultado actual: <strong>29 de 30 aciertos (96,7 %)</strong> y unos <strong>0,2 ms</strong> por análisis. El único fallo es "Un niño se atoró con un caramelo", que el motor clasifica como emergencia no especificada. Se dejó así a propósito para no ajustar el modelo a la prueba.</p>
+      <div class="nota alerta"><b>Para la tesis.</b> El conjunto de prueba es pequeño y lo escribieron los autores del sistema. Para una evaluación más sólida conviene ampliarlo con reportes escritos por otras personas de la comunidad.</div>
+    </section>
+
+    <!-- 10 -->
+    <section id="api">
+      <span class="num-sec">10</span>
+      <h2>API y eventos</h2>
+      <h3>API REST</h3>
+      <div class="tabla"><table>
+        <thead><tr><th>Método</th><th>Ruta</th><th>Quién la usa</th><th>Qué hace</th></tr></thead>
+        <tbody>
+          <tr><td><span class="metodo post">POST</span></td><td><code>/api/perfil</code></td><td>App</td><td>Registra o actualiza la ficha (exige autorización, nombre, cédula y teléfono)</td></tr>
+          <tr><td><span class="metodo get">GET</span></td><td><code>/api/perfil</code></td><td>App</td><td>Devuelve la ficha del propio dispositivo</td></tr>
+          <tr><td><span class="metodo post">POST</span></td><td><code>/api/incidentes</code></td><td>App</td><td>Crea un reporte normal; busca la ficha del afectado si aplica</td></tr>
+          <tr><td><span class="metodo post">POST</span></td><td><code>/api/panico</code></td><td>App</td><td>Crea una alerta SOS de prioridad máxima</td></tr>
+          <tr><td><span class="metodo get">GET</span></td><td><code>/api/incidentes/:id</code></td><td>App y central</td><td>La app recibe la vista reducida; la central (con PIN) la completa</td></tr>
+          <tr><td><span class="metodo get">GET</span></td><td><code>/api/incidentes</code></td><td>Central</td><td>Lista completa (requiere PIN)</td></tr>
+          <tr><td><span class="metodo get">GET</span></td><td><code>/api/estadisticas</code></td><td>Central</td><td>Totales, por categoría y tiempo promedio de respuesta</td></tr>
+          <tr><td><span class="metodo get">GET</span></td><td><code>/api/config</code></td><td>Ambos</td><td>Coordenadas del campus y si Claude está activo</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Eventos de Socket.IO</h3>
+      <div class="tabla"><table>
+        <thead><tr><th>Evento</th><th>Dirección</th><th>Para qué</th></tr></thead>
+        <tbody>
+          <tr><td><code>ubicacion</code></td><td>App → servidor</td><td>Posición GPS cada 3 segundos</td></tr>
+          <tr><td><code>incidente:unirse</code></td><td>App → servidor</td><td>Entrar a la sala de su emergencia</td></tr>
+          <tr><td><code>chat:enviar</code></td><td>App o central → servidor</td><td>Enviar un mensaje</td></tr>
+          <tr><td><code>incidente:estado</code></td><td>Central → servidor</td><td>Cambiar estado y unidad asignada</td></tr>
+          <tr><td><code>auth:ok</code> / <code>auth:error</code></td><td>Servidor → central</td><td>Resultado del PIN y lista inicial</td></tr>
+          <tr><td><code>incidente:nuevo</code></td><td>Servidor → central</td><td>Llegó una emergencia</td></tr>
+          <tr><td><code>alarma:panico</code></td><td>Servidor → central</td><td>Activar sirena y banner SOS</td></tr>
+          <tr><td><code>incidente:actualizado</code></td><td>Servidor → ambos</td><td>Cambió el estado o el análisis</td></tr>
+          <tr><td><code>chat:mensaje</code></td><td>Servidor → ambos</td><td>Nuevo mensaje en el chat</td></tr>
+          <tr><td><code>incidente:ubicacion</code>, <code>dispositivo:ubicacion</code></td><td>Servidor → central</td><td>Mover los puntos del mapa</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <!-- 11 -->
+    <section id="datos">
+      <span class="num-sec">11</span>
+      <h2>Modelo de datos</h2>
+      <h3>Incidente</h3>
+      <div class="tabla"><table>
+        <thead><tr><th>Campo</th><th>Contenido</th></tr></thead>
+        <tbody>
+          <tr><td><code>id</code></td><td>Código único, por ejemplo <code>EMG-MWFG0YGK-A076</code></td></tr>
+          <tr><td><code>tipo</code></td><td><code>reporte</code> o <code>panico</code> (alerta SOS)</td></tr>
+          <tr><td><code>estado</code></td><td><code>nuevo</code> → <code>recibido</code> → <code>en_camino</code> → <code>en_sitio</code> → <code>resuelto</code></td></tr>
+          <tr><td><code>reportante</code></td><td>Nombre, edad, tipo de usuario y rol (afectado u observador)</td></tr>
+          <tr><td><code>perfil</code></td><td>Ficha registrada del dispositivo que envió la alerta</td></tr>
+          <tr><td><code>afectado</code></td><td>Lo que dijo el observador: si lo conoce, nombre, edad y cédula</td></tr>
+          <tr><td><code>coincidencia</code>, <code>perfilAfectado</code></td><td>Resultado de la búsqueda y ficha del afectado (solo para la central)</td></tr>
+          <tr><td><code>ubicacion</code>, <code>recorrido</code></td><td>Última posición GPS y el historial de posiciones</td></tr>
+          <tr><td><code>analisis</code></td><td>Categoría, subtipo, severidad, prioridad, resumen, recomendaciones, recursos, fuente</td></tr>
+          <tr><td><code>mensajes</code></td><td>Chat: de <code>usuario</code>, <code>bomberos</code> o <code>sistema</code></td></tr>
+          <tr><td><code>historial</code></td><td>Cada cambio de estado con su hora (sirve para medir tiempos de respuesta)</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Perfil (registro)</h3>
+      <p>Tipo de usuario, nombre, cédula, edad, teléfono, carrera o área, tipo de sangre, condiciones médicas, alergias, medicamentos y contacto de emergencia (nombre, parentesco, teléfono). Se guarda en el teléfono y en <code>data/perfiles.json</code>, indexado por el identificador del dispositivo.</p>
+    </section>
+
+    <!-- 12 -->
+    <section id="privacidad">
+      <span class="num-sec">12</span>
+      <h2>Privacidad y seguridad</h2>
+      <div class="nota priv"><b>Principio: mínimo acceso.</b> Los datos médicos solo los ven los bomberos y solo cuando hay una emergencia.</div>
+      <ul>
+        <li><strong>Consentimiento explícito:</strong> el registro no se guarda sin marcar la casilla que autoriza compartir los datos "cuando yo envíe una alerta o cuando otra persona reporte que me ocurrió algo". El servidor también rechaza perfiles sin esa autorización.</li>
+        <li><strong>Vista reducida para la app:</strong> <code>vistaUsuario()</code> filtra lo que vuelve al teléfono. Un observador nunca recibe la ficha del afectado, ni siquiera sabe si la persona estaba registrada.</li>
+        <li><strong>La IA no filtra datos:</strong> las recomendaciones para un observador nunca usan la ficha médica del afectado.</li>
+        <li><strong>Ante la duda, no se envía:</strong> con varias coincidencias no se adjunta ninguna ficha.</li>
+        <li><strong>Validación en el servidor:</strong> los textos se recortan a longitudes máximas y los valores (tipo de usuario, sangre, edad) se validan contra listas permitidas.</li>
+        <li><strong>Uso indebido del SOS:</strong> confirmación obligatoria, 3 segundos de presión y aviso de sanciones. Cada alerta queda registrada con dispositivo, ubicación y hora.</li>
+      </ul>
+      <div class="nota alerta"><b>Pendiente para producción.</b> El PIN compartido de la central se reemplazará por cuentas individuales, los datos médicos se cifrarán en la base de datos, y la conexión irá siempre por HTTPS.</div>
+    </section>
+
+    <!-- 13 -->
+    <section id="ejecutar">
+      <span class="num-sec">13</span>
+      <h2>Cómo ejecutarlo</h2>
+      <h4>Servidor y central (en la computadora)</h4>
+      <div class="codigo"><div class="archivo"><b>Terminal 1</b><span>carpeta usm-emergencias</span></div><pre><code class="language-bash">npm install
+npm start</code></pre></div>
+      <p>La central queda en <code>http://localhost:3000/bomberos/</code> con el PIN <code>usm2026</code>.</p>
+      <h4>App móvil (en el teléfono, con Expo Go)</h4>
+      <ol class="pasos">
+        <li><span>Pon la IP de la computadora en <code>app-movil/app.json</code> → <code>extra.servidor</code>. Teléfono y computadora deben estar en la misma red Wi-Fi.</span></li>
+        <li><span>Instala dependencias y arranca Expo.</span></li>
+        <li><span>Escanea el código QR con Expo Go (en iPhone, inicia sesión con la misma cuenta de Expo en la computadora y en el teléfono).</span></li>
+      </ol>
+      <div class="codigo"><div class="archivo"><b>Terminal 2</b><span>carpeta usm-emergencias/app-movil</span></div><pre><code class="language-bash">npm install
+npx expo start</code></pre></div>
+      <h4>Medir la IA</h4>
+      <div class="codigo"><div class="archivo"><b>Terminal</b><span>carpeta usm-emergencias</span></div><pre><code class="language-bash">node scripts/evaluar-ia.js</code></pre></div>
+      <p>Para activar Claude, define la variable <code>ANTHROPIC_API_KEY</code> antes de <code>npm start</code>. Sin ella, todo funciona con el motor local.</p>
+    </section>
+
+    <!-- 14 -->
+    <section id="preguntas">
+      <span class="num-sec">14</span>
+      <h2>Preguntas que podría hacer el jurado</h2>
+      <details><summary>¿Por qué no usaron un modelo de lenguaje dentro del teléfono?</summary><div><p>Un modelo de lenguaje grande ocupa entre 1 y 2 GB, es lento en teléfonos comunes y no funciona con Expo Go. El motor propio pesa unos 30 KB, responde en menos de 1 ms, funciona sin internet y es explicable: se puede mostrar por qué tomó cada decisión. Claude se usa en el servidor como complemento cuando hay conexión.</p></div></details>
+      <details><summary>¿Qué pasa si se cae internet en la universidad?</summary><div><p>La recomendación de primeros auxilios aparece igual, porque se calcula en el teléfono. La alerta se guarda y se reenvía sola cada 10 segundos y al reconectar. Mientras tanto, la app ofrece llamar o enviar un SMS con la ubicación, que solo necesitan señal telefónica. El GPS tampoco depende de internet.</p></div></details>
+      <details><summary>¿Cómo evitan que se use el SOS como broma?</summary><div><p>Requiere aceptar una advertencia, marcar una casilla y mantener el botón 3 segundos. Cada alerta queda registrada con el dispositivo, la ubicación y la hora, y el uso indebido tiene consecuencias disciplinarias. Para producción se propone verificar a los usuarios con su correo institucional.</p></div></details>
+      <details><summary>¿Cómo protegen los datos médicos?</summary><div><p>Con consentimiento explícito, filtrado en el servidor (<code>vistaUsuario</code>) y la regla de no adjuntar fichas ante la duda. Los datos solo se muestran a los bomberos durante una emergencia. En producción se cifrarán en la base de datos y la central tendrá cuentas individuales.</p></div></details>
+      <details><summary>¿Cómo saben que la IA funciona bien?</summary><div><p>Con una evaluación sobre 30 frases que no forman parte del entrenamiento: 96,7 % de exactitud. Además, las situaciones de riesgo vital no dependen solo del clasificador: las cubren reglas explícitas (por ejemplo, la de paro cardiorrespiratorio), que se comportan igual siempre.</p></div></details>
+      <details><summary>¿Por qué todo en JavaScript?</summary><div><p>Un solo lenguaje para el teléfono, el servidor y la central simplifica el desarrollo y permite compartir código: el motor de IA es el mismo archivo en el teléfono y en el servidor. React Native además genera apps nativas para Android e iOS desde una sola base de código.</p></div></details>
+      <details><summary>¿Qué tan rápido llega una alerta?</summary><div><p>Con conexión, el reporte llega a la central en el mismo instante en que el servidor lo recibe, porque se reparte por WebSocket sin que la central tenga que preguntar. El servidor guarda la hora de cada cambio de estado, y <code>/api/estadisticas</code> calcula el tiempo promedio hasta que un bombero acusa recibo.</p></div></details>
+    </section>
+
+    <!-- 15 -->
+    <section id="limitaciones">
+      <span class="num-sec">15</span>
+      <h2>Limitaciones y próximos pasos</h2>
+      <ul>
+        <li><strong>Almacenamiento en archivos JSON:</strong> suficiente para el prototipo, pero para usarlo en serio hace falta PostgreSQL.</li>
+        <li><strong>Identificador del dispositivo como única protección del perfil:</strong> la consulta <code>GET /api/perfil</code> devuelve la ficha a quien conozca el identificador del dispositivo. Es aleatorio y difícil de adivinar, pero en producción debe exigir autenticación.</li>
+        <li><strong>PIN compartido en la central:</strong> se reemplazará por cuentas individuales con registro de quién atendió cada caso.</li>
+        <li><strong>La central solo avisa si está abierta:</strong> el siguiente paso son notificaciones push en los teléfonos de los bomberos y un SMS automático como respaldo.</li>
+        <li><strong>Ubicación solo con la app abierta:</strong> se puede ampliar con rastreo en segundo plano, que requiere un permiso adicional.</li>
+        <li><strong>Evaluación de la IA:</strong> ampliar el conjunto de prueba con reportes reales de la comunidad.</li>
+        <li><strong>Despliegue:</strong> el plan propuesto es Railway con PostgreSQL para la defensa y un servidor de la USM para producción, con la app distribuida como APK.</li>
+      </ul>
+    </section>
+  </main>
+</div>
+
+<footer class="pie">
+  <div class="envoltura">SOS USM · Guía del código para el equipo de tesis · Universidad Santa María</div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+  // Resaltado de sintaxis de los fragmentos de código
+  try { if (window.hljs) document.querySelectorAll(".codigo pre code").forEach((b) => window.hljs.highlightElement(b)); } catch (e) {}
+
+  // Marca en el índice la sección que se está leyendo
+  const enlaces = [...document.querySelectorAll(".indice a")];
+  const secciones = enlaces.map((a) => document.querySelector(a.getAttribute("href"))).filter(Boolean);
+  if ("IntersectionObserver" in window) {
+    const obs = new IntersectionObserver((entradas) => {
+      entradas.forEach((en) => {
+        if (!en.isIntersecting) return;
+        enlaces.forEach((a) => a.classList.toggle("activo", a.getAttribute("href") === "#" + en.target.id));
+      });
+    }, { rootMargin: "-20% 0px -70% 0px" });
+    secciones.forEach((s) => obs.observe(s));
+  }
+</script>

@@ -1,0 +1,17 @@
+{
+  "name": "usm-emergencias",
+  "version": "1.0.0",
+  "description": "Sistema íntegro auxiliar por IA y geolocalización para el llamado de servicios de emergencia – Universidad Santa María",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.8.0",
+    "express": "^4.22.3",
+    "leaflet": "^1.9.4",
+    "socket.io": "^4.8.4"
+  }
+}

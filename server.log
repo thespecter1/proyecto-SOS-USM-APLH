@@ -1,0 +1,12 @@
+
+  🚒 SOS USM en http://localhost:3000
+     App móvil:        http://localhost:3000/app/
+     Panel bomberos:   http://localhost:3000/bomberos/   (PIN: usm2026)
+     IA:               Clasificador local (define ANTHROPIC_API_KEY para usar Claude)
+
+
+  🚒 SOS USM en http://localhost:3000
+     App móvil:        http://localhost:3000/app/
+     Panel bomberos:   http://localhost:3000/bomberos/   (PIN: usm2026)
+     IA:               Clasificador local (define ANTHROPIC_API_KEY para usar Claude)
+

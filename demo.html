@@ -1,0 +1,1953 @@
+<title>SOS USM</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: the SOS USM phone app beside the Bomberos Universitarios control room, one in-page simulation drives both.
+   Deliberately single-look: blue-and-white app on a deep navy stage. */
+:root {
+  color-scheme: dark;
+  --escenario: #071433;
+  --azul-900: #0a1f4d; --azul-800: #0d2b6b; --azul-700: #0f3c9e; --azul-600: #1554d1; --azul-500: #2f6bea; --azul-100: #dce7ff; --azul-50: #eef4ff;
+  --peligro: #d92d3a; --aviso: #9a5b00; --aviso-50: #fff6e5; --ok: #0f9d58; --naranja: #f97316; --amarillo: #f5a524;
+  /* teléfono (claro) */
+  --t-fondo: #f5f8fe; --t-texto: #0f1b33; --t-suave: #5b6b8a; --t-borde: #e2e9f5;
+  /* central (oscura) */
+  --c-panel: #0f1d42; --c-panel2: #16285a; --c-borde: #233a75; --c-texto: #e8eefc; --c-suave: #9aaad0;
+  --sombra: 0 1px 2px rgba(10,31,77,.06), 0 8px 24px rgba(10,31,77,.08);
+  --f: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: radial-gradient(120% 60% at 30% 0%, #0d2b6b, var(--escenario) 60%); color: var(--c-texto); font-family: var(--f);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 32px; }
+button { font: inherit; cursor: pointer; }
+svg.i { width: 20px; height: 20px; flex-shrink: 0; }
+button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px solid #7aa2ff; outline-offset: 2px; }
+
+.encabezado { max-width: 1320px; margin: 0 auto 18px; display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: end; justify-content: space-between; }
+.encabezado h1 { font-weight: 800; font-size: clamp(22px, 3vw, 30px); margin: 0; letter-spacing: -.02em; text-wrap: balance; }
+.encabezado p { margin: 4px 0 0; color: var(--c-suave); max-width: 70ch; line-height: 1.45; }
+.pasos { display: flex; flex-wrap: wrap; gap: 6px; }
+.pasos button { background: rgba(255,255,255,.06); color: var(--c-texto); border: 1px solid var(--c-borde); border-radius: 999px; padding: 7px 13px; font-size: 13px; font-weight: 600; }
+.pasos button:hover { border-color: #4a6bc0; }
+.escenario { max-width: 1320px; margin: 0 auto; display: grid; grid-template-columns: 390px minmax(0, 1fr); gap: 24px; align-items: start; }
+.rotulo { font-family: var(--f-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--c-suave); margin: 0 0 8px; }
+
+/* ================= TELÉFONO ================= */
+.telefono { width: 100%; max-width: 390px; margin: 0 auto; background: #020817; border-radius: 48px; padding: 11px; box-shadow: 0 0 0 1px #233a75, 0 30px 70px rgba(0,0,0,.55); }
+.pt { background: var(--t-fondo); color: var(--t-texto); border-radius: 38px; height: 760px; overflow: hidden; position: relative; font-size: 14px; }
+.isla { position: absolute; top: 9px; left: 50%; transform: translateX(-50%); width: 100px; height: 26px; background: #020817; border-radius: 999px; z-index: 60; }
+.vista { position: absolute; inset: 0; overflow-y: auto; display: flex; flex-direction: column; scrollbar-width: none; }
+.vista::-webkit-scrollbar { display: none; }
+.cab { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 46px 16px 14px; background: linear-gradient(135deg, var(--azul-800), var(--azul-600)); color: #fff; flex-shrink: 0; }
+.marca { display: flex; align-items: center; gap: 9px; font-weight: 800; font-size: 17px; }
+.marca svg { width: 30px; height: 30px; border-radius: 9px; box-shadow: 0 0 0 2px rgba(255,255,255,.35); }
+.cab-t { font-weight: 700; font-size: 15px; }
+.hueco { width: 36px; }
+.atras { width: 36px; height: 36px; border-radius: 12px; border: 0; background: rgba(255,255,255,.16); color: #fff; display: grid; place-items: center; }
+.chip { display: inline-flex; align-items: center; gap: 4px; background: #fff; color: var(--azul-700); padding: 5px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.chip svg { width: 13px; height: 13px; }
+.t-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; border: 0; border-radius: 14px; padding: 14px 16px; font-weight: 700; font-size: 15px; color: #fff; background: linear-gradient(180deg, var(--azul-600), var(--azul-700)); box-shadow: 0 6px 16px rgba(21,84,209,.3); }
+.t-btn.sec { background: #fff; color: var(--azul-700); border: 1.5px solid var(--azul-100); box-shadow: none; }
+.t-enlace { background: none; border: 0; color: var(--azul-600); font-weight: 600; font-size: 13px; padding: 8px; }
+
+/* bienvenida */
+.hero { background: radial-gradient(120% 90% at 50% 0%, var(--azul-500), var(--azul-800) 70%); color: #fff; text-align: center; padding: 64px 24px 58px; border-radius: 0 0 34px 34px; }
+.hero svg { width: 80px; height: 80px; border-radius: 22px; box-shadow: 0 12px 30px rgba(0,0,0,.25), 0 0 0 4px rgba(255,255,255,.25); }
+.hero h2 { margin: 16px 0 4px; font-size: 30px; font-weight: 800; letter-spacing: -.02em; }
+.hero p { margin: 0; opacity: .85; font-size: 13px; line-height: 1.45; }
+.permiso { padding: 0 18px 22px; margin-top: -32px; display: flex; flex-direction: column; gap: 14px; }
+.beneficios { list-style: none; margin: 0; padding: 4px 14px; background: #fff; border-radius: 20px; box-shadow: var(--sombra); }
+.beneficios li { display: flex; gap: 12px; align-items: center; padding: 11px 0; }
+.beneficios li + li { border-top: 1px solid var(--t-borde); }
+.beneficios b { font-size: 14px; }
+.beneficios small { display: block; color: var(--t-suave); font-size: 12px; margin-top: 1px; line-height: 1.35; }
+.ic { width: 40px; height: 40px; border-radius: 13px; background: var(--azul-50); color: var(--azul-600); display: grid; place-items: center; flex-shrink: 0; }
+.privacidad { margin: 0; color: var(--t-suave); font-size: 12px; line-height: 1.5; text-align: center; }
+
+/* inicio */
+.inicio { padding: 18px 16px 24px; display: flex; flex-direction: column; gap: 12px; }
+.saludo h3 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
+.saludo p { margin: 3px 0 0; color: var(--t-suave); font-size: 13px; }
+.ubic { background: #fff; border-radius: 20px; box-shadow: var(--sombra); overflow: hidden; }
+.minimapa { height: 118px; cursor: crosshair; }
+.minimapa svg { width: 100%; height: 100%; display: block; }
+.ubic-pie { display: flex; align-items: center; gap: 7px; padding: 9px 13px; font-size: 12px; color: var(--t-suave); }
+.ubic-pie svg { width: 15px; height: 15px; color: var(--azul-600); }
+.opcion { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; text-align: left; background: #fff; border: 1.5px solid var(--t-borde); border-radius: 20px; padding: 15px 14px; box-shadow: var(--sombra); color: var(--t-texto); }
+.opcion:active { transform: scale(.99); }
+.op-ic { width: 46px; height: 46px; border-radius: 15px; display: grid; place-items: center; background: linear-gradient(135deg, var(--azul-500), var(--azul-700)); color: #fff; }
+.op-ic svg { width: 24px; height: 24px; }
+.opcion b { display: block; font-size: 15px; font-weight: 800; letter-spacing: -.01em; }
+.opcion small { display: block; color: var(--t-suave); font-size: 12px; line-height: 1.4; margin-top: 2px; }
+.chev { color: var(--azul-600); }
+.opcion.critica { border-color: #f4c3c7; background: linear-gradient(180deg, #fff, #fff8f8); }
+.opcion.critica .op-ic { background: linear-gradient(135deg, #ef4b57, var(--peligro)); }
+.opcion.critica .chev { color: var(--peligro); }
+.aviso-mini { grid-column: 1 / -1; display: flex; gap: 7px; align-items: flex-start; background: var(--aviso-50); color: var(--aviso); border-radius: 11px; padding: 9px 11px; font-size: 11px; font-weight: 600; line-height: 1.4; }
+.aviso-mini svg { width: 15px; height: 15px; }
+.activa { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; text-align: left; border: 0; border-radius: 18px; padding: 12px 14px; background: var(--azul-700); color: #fff; }
+.activa small { display: block; opacity: .8; font-size: 11px; }
+
+
+/* inicio: dos botones a pantalla completa */
+#v-inicio { overflow: hidden; }
+#v-inicio .inicio { flex: 1; min-height: 0; padding: 16px 14px 22px; gap: 10px; }
+.saludo p { display: flex; align-items: center; gap: 7px; }
+.punto-vivo { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 3px #d9f3e5; flex-shrink: 0; }
+.opcion-grande { flex: 2 1 0; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px; text-align: center; border: 0; border-radius: 26px; padding: 18px 20px; color: #fff;
+  background: radial-gradient(120% 100% at 50% 0%, var(--azul-500), var(--azul-700) 60%, var(--azul-800)); box-shadow: 0 14px 34px rgba(21,84,209,.35); }
+.opcion-grande:active, .opcion-roja:active { transform: scale(.99); }
+.og-ic { flex-shrink: 0; width: 68px; height: 68px; border-radius: 22px; background: rgba(255,255,255,.16); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.3); display: grid; place-items: center; }
+.og-ic svg { width: 34px; height: 34px; }
+.opcion-grande b { font-size: 21px; font-weight: 800; letter-spacing: -.02em; }
+.opcion-grande small { font-size: 12.5px; line-height: 1.45; opacity: .88; max-width: 32ch; }
+.og-cta { display: inline-flex; align-items: center; gap: 6px; margin-top: 2px; background: #fff; color: var(--azul-700); font-weight: 700; font-size: 13px; padding: 9px 15px; border-radius: 999px; }
+.og-cta svg { width: 15px; height: 15px; }
+.opcion-roja { flex: 1 1 0; min-height: 0; display: flex; flex-direction: column; justify-content: center; gap: 7px; text-align: left; border: 0; border-radius: 22px; padding: 14px 16px; color: #fff;
+  background: linear-gradient(135deg, #e5414d, var(--peligro) 55%, #a5161f); box-shadow: 0 12px 28px rgba(217,45,58,.35); }
+.or-fila { display: flex; align-items: center; gap: 9px; }
+.or-fila svg { width: 24px; height: 24px; }
+.or-fila b { flex: 1; font-size: 16px; font-weight: 800; letter-spacing: -.01em; }
+.opcion-roja small { font-size: 12px; line-height: 1.4; opacity: .92; }
+
+/* alta prioridad */
+.alta { padding: 14px 14px 22px; display: flex; flex-direction: column; gap: 14px; }
+.adv { background: #fff; border: 1.5px solid #f4c3c7; border-radius: 20px; padding: 15px; box-shadow: var(--sombra); display: flex; flex-direction: column; gap: 10px; }
+.adv-cab { display: flex; gap: 9px; align-items: center; color: var(--peligro); font-size: 15px; font-weight: 800; line-height: 1.25; }
+.adv-cab svg { width: 24px; height: 24px; }
+.adv p { margin: 0; line-height: 1.5; font-size: 13px; }
+.listas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.listas h4 { margin: 0 0 5px; font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: var(--t-suave); }
+.listas ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 5px; font-size: 12px; line-height: 1.35; }
+.listas li { padding-left: 14px; position: relative; }
+.listas .si li::before { content: ""; position: absolute; left: 0; top: 5px; width: 7px; height: 7px; border-radius: 50%; background: var(--peligro); }
+.listas .no li::before { content: ""; position: absolute; left: 0; top: 7px; width: 8px; height: 2px; background: var(--t-suave); }
+.legal { background: var(--aviso-50); color: #6b4000; border-radius: 11px; padding: 10px 11px; font-size: 12px !important; }
+.acepto { position: relative; display: flex; gap: 10px; align-items: flex-start; font-weight: 600; font-size: 13px; cursor: pointer; line-height: 1.4; }
+.acepto input { position: absolute; inset: 0; opacity: 0; margin: 0; pointer-events: none; }
+.caja { width: 22px; height: 22px; border-radius: 7px; border: 2px solid var(--azul-100); display: grid; place-items: center; flex-shrink: 0; background: #fff; }
+.caja svg { width: 14px; height: 14px; color: #fff; opacity: 0; }
+.acepto input:checked + .caja { background: var(--azul-600); border-color: var(--azul-600); }
+.acepto input:checked + .caja svg { opacity: 1; }
+.acepto input:focus-visible + .caja { outline: 3px solid #7aa2ff; }
+.zona-sos { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.sos { position: relative; width: 112px; height: 112px; border-radius: 50%; border: 0; color: #fff; font-size: 28px; font-weight: 800; letter-spacing: .06em; background: radial-gradient(circle at 35% 30%, #f6636d, var(--peligro) 60%, #a5161f); box-shadow: 0 0 0 7px rgba(217,45,58,.12), 0 10px 24px rgba(217,45,58,.35); user-select: none; -webkit-user-select: none; touch-action: none; transition: filter .2s, transform .1s; }
+.sos span { position: relative; }
+.sos:disabled { filter: grayscale(1) opacity(.45); cursor: not-allowed; box-shadow: none; }
+.sos .anillo { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+.sos .anillo circle { fill: none; stroke: #fff; stroke-width: 6; stroke-linecap: round; stroke-dasharray: 351.9; stroke-dashoffset: 351.9; }
+.sos.presionando { transform: scale(.96); }
+.sos.presionando .anillo circle { transition: stroke-dashoffset 3s linear; stroke-dashoffset: 0; }
+.sos-ayuda { margin: 0; color: var(--t-suave); font-size: 12px; text-align: center; }
+
+/* formulario */
+.formulario { padding: 16px 14px 22px; display: flex; flex-direction: column; gap: 15px; }
+.grupo { border: 0; margin: 0; padding: 0; }
+.grupo legend, .campo { font-weight: 700; font-size: 12px; }
+.grupo legend { margin-bottom: 7px; }
+.campo { display: flex; flex-direction: column; gap: 5px; }
+.dos { display: grid; grid-template-columns: 1fr 74px; gap: 8px; }
+.formulario input, .formulario textarea, .t-chat-form input { font: inherit; font-size: 14px; font-weight: 500; padding: 11px 12px; border: 1.5px solid var(--t-borde); border-radius: 13px; background: #fff; color: var(--t-texto); width: 100%; min-width: 0; }
+.formulario input:focus, .formulario textarea:focus { outline: none; border-color: var(--azul-500); box-shadow: 0 0 0 4px var(--azul-50); }
+.chips-sel { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips-sel label, .segmento label { position: relative; }
+.chips-sel input, .segmento input { position: absolute; inset: 0; opacity: 0; margin: 0; pointer-events: none; }
+.chips-sel span { display: inline-block; padding: 7px 12px; border-radius: 999px; background: #fff; border: 1.5px solid var(--t-borde); font-size: 12px; font-weight: 600; cursor: pointer; }
+.chips-sel input:checked + span { background: var(--azul-600); border-color: var(--azul-600); color: #fff; }
+.chips-sel input:focus-visible + span, .segmento input:focus-visible + span { outline: 3px solid #7aa2ff; }
+.segmento { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.segmento span { display: block; padding: 10px 12px; border-radius: 13px; border: 1.5px solid var(--t-borde); background: #fff; cursor: pointer; }
+.segmento b { display: block; font-size: 14px; }
+.segmento small { color: var(--t-suave); font-size: 11px; }
+.segmento input:checked + span { border-color: var(--azul-600); background: var(--azul-50); box-shadow: inset 0 0 0 1px var(--azul-600); }
+.sugerencias { display: flex; flex-wrap: wrap; gap: 5px; margin-top: -6px; }
+.sugerencias button { border: 1px dashed var(--azul-100); background: var(--azul-50); color: var(--azul-700); border-radius: 999px; padding: 5px 10px; font-size: 11px; font-weight: 600; }
+.nota { margin: -6px 0 0; text-align: center; font-size: 11px; color: var(--t-suave); }
+
+/* incidente */
+.incidente { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+.estado-hero { background: linear-gradient(135deg, var(--azul-800), var(--azul-600)); color: #fff; border-radius: 20px; padding: 15px 14px 12px; box-shadow: var(--sombra); display: flex; flex-direction: column; gap: 14px; }
+.estado-fila { display: flex; gap: 11px; align-items: center; }
+.estado-fila b { font-size: 16px; font-weight: 800; }
+.estado-fila small { display: block; opacity: .85; font-size: 12px; margin-top: 1px; }
+.pulso { width: 11px; height: 11px; border-radius: 50%; background: #ffd166; flex-shrink: 0; animation: pulso 1.6s infinite; }
+.estado-hero.atendiendo .pulso { background: #8fe3ff; }
+.estado-hero.resuelto { background: linear-gradient(135deg, #0b6b40, var(--ok)); }
+.estado-hero.resuelto .pulso { background: #fff; animation: none; }
+@keyframes pulso { 0% { box-shadow: 0 0 0 0 rgba(255,255,255,.6); } 70%, 100% { box-shadow: 0 0 0 11px rgba(255,255,255,0); } }
+.linea { list-style: none; display: grid; grid-template-columns: repeat(5, 1fr); padding: 0; margin: 0; font-size: 10px; text-align: center; color: rgba(255,255,255,.6); }
+.linea li { position: relative; padding-top: 16px; }
+.linea li::before { content: ""; position: absolute; top: 3px; left: 50%; transform: translateX(-50%); width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,.3); z-index: 1; }
+.linea li::after { content: ""; position: absolute; top: 7px; left: -50%; width: 100%; height: 2px; background: rgba(255,255,255,.25); }
+.linea li:first-child::after { display: none; }
+.linea li.hecho { color: #fff; font-weight: 700; }
+.linea li.hecho::before { background: #fff; box-shadow: 0 0 0 3px rgba(255,255,255,.3); }
+.linea li.hecho::after { background: #fff; }
+.tarj { background: #fff; border-radius: 20px; box-shadow: var(--sombra); padding: 14px; }
+.ia-cab { display: flex; justify-content: space-between; align-items: center; }
+.ia-tag { display: inline-flex; gap: 5px; align-items: center; font-size: 11px; font-weight: 700; color: var(--azul-700); background: var(--azul-50); padding: 4px 9px; border-radius: 999px; }
+.ia-tag svg { width: 13px; height: 13px; }
+.sev { font-size: 10px; font-weight: 800; padding: 3px 9px; border-radius: 999px; background: var(--t-borde); color: var(--t-texto); text-transform: uppercase; letter-spacing: .05em; }
+.sev.baja { background: #e5f6ed; color: var(--ok); } .sev.moderada { background: var(--aviso-50); color: var(--aviso); }
+.sev.alta { background: #ffe8d6; color: #b54708; } .sev.critica { background: var(--peligro); color: #fff; }
+.tarj h4 { margin: 10px 0 0; font-size: 17px; font-weight: 800; letter-spacing: -.01em; }
+.ia-sub { margin: 9px 0 7px; font-weight: 700; font-size: 10px; color: var(--t-suave); text-transform: uppercase; letter-spacing: .07em; }
+.recs { margin: 0; padding: 0; list-style: none; counter-reset: paso; display: flex; flex-direction: column; gap: 8px; }
+.recs li { counter-increment: paso; display: grid; grid-template-columns: 24px 1fr; gap: 9px; line-height: 1.45; font-size: 13px; }
+.recs li::before { content: counter(paso); width: 24px; height: 24px; border-radius: 8px; background: var(--azul-50); color: var(--azul-700); font-weight: 800; font-size: 12px; display: grid; place-items: center; }
+.recs .cargando { display: block; color: var(--t-suave); }
+.recs .cargando::before { display: none; }
+.fuente { display: block; margin-top: 10px; color: var(--t-suave); font-size: 10px; }
+.t-chat { padding: 0; overflow: hidden; }
+.t-chat-cab { display: flex; gap: 9px; align-items: center; padding: 11px 13px; border-bottom: 1px solid var(--t-borde); }
+.t-chat-cab .ic { width: 34px; height: 34px; border-radius: 11px; }
+.t-chat-cab b { font-size: 13px; }
+.t-chat-cab small { display: block; color: var(--t-suave); font-size: 11px; }
+.t-msgs { padding: 11px; display: flex; flex-direction: column; gap: 6px; max-height: 210px; min-height: 90px; overflow-y: auto; background: var(--t-fondo); }
+.msg { max-width: 84%; padding: 7px 11px; border-radius: 14px; font-size: 13px; line-height: 1.4; overflow-wrap: anywhere; }
+.msg small { display: block; font-size: 9px; opacity: .7; margin-top: 2px; }
+.msg.sistema { align-self: center; background: transparent; color: var(--t-suave); font-size: 11px; text-align: center; max-width: 95%; padding: 2px 6px; }
+.t-msgs .msg.usuario { align-self: flex-end; background: var(--azul-600); color: #fff; border-bottom-right-radius: 5px; }
+.t-msgs .msg.bomberos { align-self: flex-start; background: #fff; border: 1px solid var(--t-borde); border-bottom-left-radius: 5px; }
+.t-msgs .msg.bomberos b { color: var(--azul-700); font-size: 11px; display: block; }
+.t-chat-form { display: flex; gap: 6px; padding: 8px; border-top: 1px solid var(--t-borde); }
+.t-chat-form input { flex: 1; border-radius: 999px; padding: 9px 13px; }
+.t-chat-form button { width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--azul-600); color: #fff; display: grid; place-items: center; flex-shrink: 0; }
+.overlay { position: absolute; inset: 0; background: radial-gradient(circle, rgba(13,43,107,.95), rgba(10,31,77,.98)); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: #fff; text-align: center; padding: 24px; z-index: 50; }
+.overlay h3 { font-size: 21px; font-weight: 800; margin: 12px 0 0; }
+.overlay p { margin: 0; opacity: .85; line-height: 1.45; font-size: 13px; }
+.onda { width: 88px; height: 88px; border-radius: 50%; background: var(--peligro); display: grid; place-items: center; font-weight: 800; font-size: 24px; animation: onda 1.2s infinite; }
+@keyframes onda { 0% { box-shadow: 0 0 0 0 rgba(217,45,58,.7); } 100% { box-shadow: 0 0 0 34px rgba(217,45,58,0); } }
+
+/* ================= CENTRAL ================= */
+.central { background: var(--c-panel); border: 1px solid var(--c-borde); border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; min-width: 0; box-shadow: 0 30px 70px rgba(0,0,0,.35); }
+.banner { background: var(--peligro); color: #fff; text-align: center; font-weight: 800; letter-spacing: .06em; padding: 8px; animation: parpadeo .8s infinite; }
+@keyframes parpadeo { 50% { opacity: .6; } }
+.c-cab { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--c-borde); flex-wrap: wrap; }
+.c-marca { display: flex; gap: 10px; align-items: center; }
+.c-marca svg { width: 34px; height: 34px; border-radius: 10px; }
+.c-marca b { font-weight: 800; }
+.c-marca small { display: block; color: var(--c-suave); font-size: 12px; }
+.kpis { display: flex; gap: 6px; flex-wrap: wrap; }
+.kpi { background: var(--c-panel2); border-radius: 11px; padding: 5px 12px; text-align: center; min-width: 70px; }
+.kpi span { font-size: 20px; font-weight: 800; display: block; font-variant-numeric: tabular-nums; }
+.kpi small { color: var(--c-suave); font-size: 10px; }
+.kpi.critico span { color: #ff7b86; }
+.c-acc { display: flex; gap: 6px; align-items: center; }
+.c-chip { font-size: 11px; padding: 4px 10px; border-radius: 999px; background: var(--c-panel2); color: #7ee2b0; }
+.btn-silenciar { background: var(--amarillo); color: #000; border: 0; border-radius: 10px; padding: 7px 12px; font-weight: 700; font-size: 13px; animation: parpadeo 1s infinite; }
+.c-cuerpo { display: grid; grid-template-columns: 260px minmax(0, 1fr); }
+.c-lista { border-right: 1px solid var(--c-borde); padding: 10px; display: flex; flex-direction: column; gap: 8px; max-height: 350px; overflow-y: auto; }
+.c-lista h4, .det h4 { margin: 0; font-family: var(--f-mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--c-suave); font-weight: 500; }
+.item { background: var(--c-panel2); border: 1px solid var(--c-borde); border-left: 5px solid var(--c-suave); border-radius: 12px; padding: 9px 11px; text-align: left; color: var(--c-texto); width: 100%; }
+.item.sel { outline: 2px solid #7aa2ff; }
+.item.p5 { border-left-color: var(--peligro); } .item.p4 { border-left-color: var(--naranja); } .item.p3 { border-left-color: var(--amarillo); } .item.p2, .item.p1 { border-left-color: var(--ok); }
+.item.sosc { background: linear-gradient(90deg, rgba(217,45,58,.35), var(--c-panel2)); }
+.item.resuelto { opacity: .55; }
+.fila { display: flex; justify-content: space-between; gap: 6px; align-items: center; }
+.item .tipo { font-weight: 700; font-size: 13px; }
+.item .meta { color: var(--c-suave); font-size: 11px; margin-top: 3px; }
+.badge { background: var(--peligro); color: #fff; font-size: 9px; font-weight: 800; padding: 2px 5px; border-radius: 5px; letter-spacing: .04em; }
+.prio { font-family: var(--f-mono); font-size: 11px; padding: 2px 7px; border-radius: 999px; background: #33405e; color: #fff; white-space: nowrap; }
+.prio.p5 { background: var(--peligro); } .prio.p4 { background: var(--naranja); color: #111; } .prio.p3 { background: var(--amarillo); color: #111; } .prio.p2, .prio.p1 { background: var(--ok); }
+.c-mapa { position: relative; min-height: 350px; background: #12204a; }
+.c-mapa svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.leyenda { position: absolute; left: 10px; bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; background: rgba(7,20,51,.85); padding: 6px 10px; border-radius: 8px; font-size: 11px; color: var(--c-suave); }
+.leyenda i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 4px; vertical-align: -1px; }
+.c-det { grid-column: 1 / -1; border-top: 1px solid var(--c-borde); }
+.det { padding: 14px 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.det-tit { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 10px; align-items: center; flex-wrap: wrap; }
+.det-tit h3 { margin: 0; font-size: 19px; font-weight: 800; }
+.det-tit .cod { font-family: var(--f-mono); color: var(--c-suave); font-size: 11px; }
+.bloque { background: var(--c-panel2); border-radius: 13px; padding: 12px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.estados { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.estados button { background: #22397a; color: var(--c-texto); border: 0; border-radius: 9px; padding: 8px; font-weight: 600; font-size: 13px; }
+.estados button.activo { background: var(--azul-600); outline: 2px solid #7aa2ff; }
+.estados button.fin { background: var(--ok); }
+.c-input { font: inherit; font-size: 13px; padding: 8px 10px; border-radius: 9px; border: 1px solid var(--c-borde); background: #0b1733; color: var(--c-texto); min-width: 0; }
+.datos { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; font-size: 13px; margin: 0; }
+.datos dt { color: var(--c-suave); } .datos dd { margin: 0; overflow-wrap: anywhere; }
+.mono { font-family: var(--f-mono); font-size: 12px; }
+.desc { font-style: italic; line-height: 1.4; margin: 0; font-size: 13px; }
+.recursos { display: flex; flex-wrap: wrap; gap: 5px; }
+.recursos span { background: #22397a; padding: 3px 8px; border-radius: 6px; font-size: 11px; }
+.c-msgs { display: flex; flex-direction: column; gap: 5px; max-height: 190px; overflow-y: auto; }
+.c-msgs .msg.bomberos { align-self: flex-end; background: var(--azul-600); color: #fff; }
+.c-msgs .msg.usuario { align-self: flex-start; background: #2a3b6e; color: var(--c-texto); }
+.c-msgs .msg.sistema { color: var(--c-suave); }
+.rapidas { display: flex; flex-wrap: wrap; gap: 4px; }
+.rapidas button { background: #22397a; border: 0; color: var(--c-texto); font-size: 11px; padding: 4px 8px; border-radius: 6px; }
+.c-form { display: flex; gap: 6px; }
+.c-form input { flex: 1; }
+.c-form button { background: var(--azul-600); color: #fff; border: 0; border-radius: 9px; padding: 0 14px; font-weight: 700; }
+.nota-pie { max-width: 1320px; margin: 18px auto 0; color: var(--c-suave); font-size: 13px; line-height: 1.5; }
+.nota-pie code { font-family: var(--f-mono); font-size: 12px; color: var(--c-texto); }
+
+@media (max-width: 1080px) { .escenario { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 640px) {
+  .c-cuerpo { grid-template-columns: minmax(0, 1fr); }
+  .c-lista { border-right: 0; border-bottom: 1px solid var(--c-borde); max-height: 260px; }
+  .c-mapa { min-height: 280px; }
+  .telefono { border-radius: 40px; padding: 8px; }
+  .pt { height: 720px; border-radius: 32px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* ===== v3: registro, modo sin señal, ficha ===== */
+.pasos button[aria-pressed="true"] { background: #7a4700; border-color: #f5a524; color: #fff; }
+.pasos .senal { font-weight: 700; }
+.marca-mini svg { width: 30px; height: 30px; border-radius: 9px; box-shadow: 0 0 0 2px rgba(255,255,255,.35); display: block; }
+.intro { display: flex; gap: 11px; background: var(--azul-700); color: #fff; border-radius: 18px; padding: 14px; }
+.intro svg { width: 26px; height: 26px; flex-shrink: 0; }
+.intro b { display: block; font-size: 15px; font-weight: 800; }
+.intro p { margin: 3px 0 0; font-size: 12px; line-height: 1.45; opacity: .9; }
+.seccion { background: #fff; border-radius: 18px; padding: 14px; display: flex; flex-direction: column; gap: 11px; box-shadow: var(--sombra); }
+.seccion-cab { display: flex; align-items: center; gap: 9px; }
+.seccion-cab .ic { width: 32px; height: 32px; border-radius: 10px; }
+.seccion-cab b { font-size: 14px; font-weight: 800; }
+.seccion-cab small { display: block; color: var(--t-suave); font-size: 11px; }
+.chips-sel.sangre span { min-width: 44px; text-align: center; border-radius: 10px; }
+.formulario textarea.corta { min-height: 52px; resize: none; }
+.obl { color: var(--peligro); }
+.t-error { margin: 0; color: var(--peligro); font-size: 12px; font-weight: 600; text-align: center; }
+.fila-estado { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 3px; }
+.fila-estado p { margin: 0; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pill { display: inline-flex; align-items: center; gap: 4px; border: 0; background: var(--azul-50); color: var(--azul-700); font-weight: 700; font-size: 11px; border-radius: 999px; padding: 5px 10px; flex-shrink: 0; }
+.pill svg { width: 13px; height: 13px; }
+.aviso-caja { display: flex; gap: 9px; align-items: flex-start; border-radius: 14px; padding: 9px 12px; font-size: 11.5px; line-height: 1.4; color: #6b4000; text-align: left; }
+.aviso-caja.offline { background: #fff1e0; border: 1px solid #f3d1a4; }
+.aviso-caja.registro { background: var(--aviso-50); border: 1px solid #f3d9a4; width: 100%; font: inherit; font-size: 11.5px; cursor: pointer; }
+.aviso-caja svg { width: 16px; height: 16px; flex-shrink: 0; color: var(--aviso); }
+.aviso-caja .punto { width: 8px; height: 8px; border-radius: 50%; background: var(--aviso); margin-top: 4px; flex-shrink: 0; }
+.reportas { display: flex; align-items: center; gap: 11px; background: #fff; border: 1.5px solid var(--azul-100); border-radius: 16px; padding: 12px; }
+.reportas .ic { width: 38px; height: 38px; border-radius: 12px; }
+.reportas small { display: block; font-size: 9px; font-weight: 700; letter-spacing: .08em; color: var(--t-suave); }
+.reportas b { display: block; font-size: 15px; font-weight: 800; }
+.reportas span.sub { font-size: 12px; color: var(--t-suave); }
+.reportas .ok { color: var(--ok); margin-left: auto; }
+.nota-reg { background: var(--azul-50); border-radius: 12px; padding: 10px 12px; font-size: 12px; line-height: 1.45; border: 0; text-align: left; color: var(--t-texto); cursor: pointer; }
+.nota-reg b { color: var(--azul-700); }
+.ficha-tel { background: #fff; border: 1.5px solid var(--azul-100); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 4px; }
+.ficha-tel .cab-f { display: flex; gap: 7px; align-items: center; font-weight: 800; font-size: 13px; }
+.ficha-tel .cab-f svg { width: 20px; height: 20px; color: var(--azul-600); }
+.ficha-tel p { margin: 0; font-size: 12px; line-height: 1.45; }
+.ficha-tel small { color: var(--t-suave); font-size: 11px; }
+.estado-hero.pendiente { background: linear-gradient(135deg, #7a4700, #b8730d); }
+.reintentar { align-self: flex-start; background: rgba(255,255,255,.2); color: #fff; border: 0; border-radius: 999px; padding: 7px 13px; font-weight: 700; font-size: 12px; }
+.contacto { background: #fff; border: 1.5px solid var(--azul-100); border-radius: 18px; padding: 13px; display: flex; flex-direction: column; gap: 6px; }
+.contacto b { font-size: 14px; font-weight: 800; }
+.contacto p { margin: 0; color: var(--t-suave); font-size: 12px; line-height: 1.4; }
+.contacto .num { font-family: var(--f-mono); color: var(--t-texto); font-size: 12px; }
+.contacto .fila2 { display: flex; gap: 8px; margin-top: 4px; }
+.contacto .fila2 button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; border: 0; border-radius: 12px; padding: 11px 6px; color: #fff; font-weight: 700; font-size: 12.5px; }
+.contacto .fila2 svg { width: 16px; height: 16px; }
+.t-toast { position: absolute; left: 14px; right: 14px; bottom: 18px; z-index: 55; background: var(--azul-900); color: #fff; border-radius: 14px; padding: 11px 13px; font-size: 12px; line-height: 1.45; box-shadow: 0 10px 30px rgba(0,0,0,.3); }
+.t-toast code { font-family: var(--f-mono); font-size: 11px; background: rgba(255,255,255,.12); padding: 1px 4px; border-radius: 4px; overflow-wrap: anywhere; }
+.chip.sin { background: #fff1e0; color: var(--aviso); }
+.bloque.ficha { border: 1px solid var(--azul-500); }
+.alerta-medica { color: #ffb4bb; font-weight: 700; }
+.c-chip.sin { color: #ffcf8a; }
+.dos.par { grid-template-columns: 1fr 1fr; }
+.leyenda { left: auto !important; bottom: auto !important; right: 10px; top: 10px; }
+.obs-bloque { background: #fff; border: 1.5px solid var(--azul-100); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+.segmento.corto span { text-align: center; padding: 10px 6px; }
+.nota-obs { margin: 0; font-size: 11.5px; color: var(--t-suave); line-height: 1.45; }
+.dos.par2 { grid-template-columns: 74px 1fr; }
+.opc { font-weight: 400; color: var(--t-suave); }
+.nota-ficha { margin: 0; font-size: 12px; line-height: 1.4; color: var(--c-texto); }
+.hero-elegir { padding-top: 54px; padding-bottom: 46px; }
+.hero-elegir h2 { font-size: 23px; margin-top: 12px; }
+.elegir-ic { width: 62px; height: 62px; border-radius: 20px; margin: 0 auto; }
+.elegir-ic svg { width: 32px; height: 32px; }
+.elegir-cuerpo { flex: 1; }
+.beneficios small { line-height: 1.4; }
+.pie-fijo { position: sticky; bottom: 0; display: flex; flex-direction: column; gap: 8px; padding: 12px 16px 16px; background: var(--t-fondo); border-top: 1px solid var(--t-borde); }
+.pie-fijo .nota { margin: 0; }
+.hero-elegir .elegir-ic svg { width: 32px; height: 32px; box-shadow: none; border-radius: 0; color: #fff; }
+/* Pantalla "¿registrarte ahora o más tarde?": solo la pregunta y dos botones */
+.vista.elegir { background: linear-gradient(180deg, var(--azul-500), var(--azul-800)); padding: 0 22px 30px; color: #fff; }
+.elegir-centro { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; text-align: center; }
+.elegir-centro h2 { margin: 0; font-size: 25px; line-height: 1.2; font-weight: 800; letter-spacing: -.01em; max-width: 280px; text-wrap: balance; }
+.elegir-ic { width: 76px; height: 76px; border-radius: 24px; background: rgba(255,255,255,.16); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.3); display: grid; place-items: center; }
+.elegir-ic svg { width: 36px; height: 36px; color: #fff; }
+.elegir-botones { display: flex; flex-direction: column; gap: 10px; }
+.elegir-ahora { border: 0; border-radius: 15px; padding: 15px; background: #fff; color: var(--azul-700); font-weight: 800; font-size: 16px; }
+.elegir-luego { border: 1.5px solid rgba(255,255,255,.45); border-radius: 15px; padding: 15px; background: transparent; color: #fff; font-weight: 700; font-size: 16px; }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs><linearGradient id="gl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2f6bea"/><stop offset="1" stop-color="#0d2b6b"/></linearGradient></defs>
+  <symbol id="logo" viewBox="0 0 512 512"><rect width="512" height="512" rx="116" fill="url(#gl)"/><path d="M256 84l150 56v108c0 92-63 166-150 186-87-20-150-94-150-186V140z" fill="#fff"/><text x="256" y="318" text-anchor="middle" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="118" fill="#0f3c9e">SOS</text></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="10" r="2.6" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-ia" viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z M19 15l.9 2.1 2.1.9-2.1.9L19 21l-.9-2.1-2.1-.9 2.1-.9z" fill="currentColor"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-alerta" viewBox="0 0 24 24"><path d="M12 3l10 18H2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 10v5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="18" r="1.2" fill="currentColor"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 12h7M9 16h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-flecha" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-atras" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-enviar" viewBox="0 0 24 24"><path d="M4 12l16-8-6 16-2.5-6.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+
+  <symbol id="i-usuario" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 21c1.2-4 4.3-6 8-6s6.8 2 8 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-corazon" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-telefono" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-escudo" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.6-3.4 8.4-8 9-4.6-.6-8-4.4-8-9V6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<header class="encabezado">
+  <div>
+    <h1>SOS USM · demostración en vivo</h1>
+    <p>A la izquierda, la app para la comunidad USM; a la derecha, la central de los Bomberos Universitarios. Prueba el registro, los reportes y la alerta SOS. Con el botón de señal puedes simular que se cae el internet.</p>
+  </div>
+  <div class="pasos" aria-label="Controles de la demostración">
+    <button id="btn-senal" class="senal" aria-pressed="false">📶 Con señal</button>
+    <button id="btn-ejemplo-reg">Llenar registro de ejemplo</button>
+    <button data-escenario="desmayo">Ejemplo: compañero desmayado (registrado)</button>
+    <button data-escenario="incendio">Ejemplo: humo en laboratorio</button>
+    <button id="reiniciar">Reiniciar demo</button>
+  </div>
+</header>
+
+<div class="escenario">
+  <section aria-label="App móvil SOS USM">
+    <p class="rotulo">App SOS USM · comunidad universitaria</p>
+    <div class="telefono"><div class="pt">
+      <div class="isla"></div>
+
+      <!-- 1. Bienvenida y permiso de GPS -->
+      <div class="vista" id="v-permiso">
+        <div class="hero">
+          <svg aria-hidden="true"><use href="#logo"/></svg>
+          <h2>SOS USM</h2>
+          <p>Emergencias con inteligencia artificial y geolocalización<br>Universidad Santa María</p>
+        </div>
+        <div class="permiso">
+          <ul class="beneficios">
+            <li><span class="ic"><svg class="i"><use href="#i-pin"/></svg></span><div><b>Ubicación en tiempo real</b><small>Los Bomberos Universitarios llegan directo a donde estás.</small></div></li>
+            <li><span class="ic"><svg class="i"><use href="#i-ia"/></svg></span><div><b>IA que funciona sin internet</b><small>Te dice qué hacer al instante, aunque no haya señal.</small></div></li>
+            <li><span class="ic"><svg class="i"><use href="#i-chat"/></svg></span><div><b>Chat directo</b><small>Comunícate con la central mientras llega la ayuda.</small></div></li>
+          </ul>
+          <p class="privacidad">Para estudiantes, profesores, personal administrativo, seguridad y limpieza. En esta demo la ubicación GPS se simula dentro del campus.</p>
+          <button class="t-btn" id="btn-permitir">Permitir ubicación y continuar</button>
+        </div>
+      </div>
+
+      <!-- 2. ¿Registrarse ahora o más tarde? -->
+      <div class="vista elegir" id="v-elegir" hidden>
+        <div class="elegir-centro">
+          <span class="elegir-ic"><svg class="i"><use href="#i-usuario"/></svg></span>
+          <h2>¿Quieres registrarte ahora o más tarde?</h2>
+        </div>
+        <div class="elegir-botones">
+          <button class="elegir-ahora" id="btn-reg-ahora">Registrarme ahora</button>
+          <button class="elegir-luego" id="btn-reg-luego">Más tarde</button>
+        </div>
+      </div>
+
+      <!-- 3. Registro (momento de calma) -->
+      <div class="vista" id="v-registro" hidden>
+        <div class="cab">
+          <button class="atras" id="reg-atras" aria-label="Volver" hidden><svg class="i"><use href="#i-atras"/></svg></button>
+          <span class="marca-mini" id="reg-logo"><svg aria-hidden="true"><use href="#logo"/></svg></span>
+          <span class="cab-t" id="reg-titulo">Registro</span><span class="hueco"></span>
+        </div>
+        <form class="formulario" id="form-registro" novalidate>
+          <div class="intro">
+            <svg class="i"><use href="#i-escudo"/></svg>
+            <div><b>Regístrate en un momento de calma</b><p>Si algún día envías una alerta SOS, los Bomberos Universitarios recibirán estos datos automáticamente, sin que tengas que escribir nada.</p></div>
+          </div>
+          <div class="seccion">
+            <div class="seccion-cab"><span class="ic"><svg class="i"><use href="#i-usuario"/></svg></span><b>Datos personales</b></div>
+            <fieldset class="grupo"><legend>Soy parte de la comunidad USM como</legend>
+              <div class="chips-sel">
+                <label><input type="radio" name="rTipo" id="r-est" value="estudiante" checked><span>Estudiante</span></label>
+                <label><input type="radio" name="rTipo" id="r-pro" value="profesor"><span>Profesor</span></label>
+                <label><input type="radio" name="rTipo" id="r-adm" value="administrativo"><span>Personal administrativo</span></label>
+                <label><input type="radio" name="rTipo" id="r-seg" value="seguridad"><span>Seguridad</span></label>
+                <label><input type="radio" name="rTipo" id="r-lim" value="limpieza"><span>Limpieza y mantenimiento</span></label>
+              </div>
+            </fieldset>
+            <label class="campo" for="r-nombre">Nombre completo <span class="obl">*</span><input id="r-nombre" maxlength="80" placeholder="Ej. María Pérez"></label>
+            <div class="dos">
+              <label class="campo" for="r-cedula">Cédula <span class="obl">*</span><input id="r-cedula" maxlength="14" placeholder="V-28123456"></label>
+              <label class="campo" for="r-edad">Edad<input id="r-edad" type="number" min="1" max="120" placeholder="21"></label>
+            </div>
+            <label class="campo" for="r-tel">Teléfono <span class="obl">*</span><input id="r-tel" maxlength="20" placeholder="Ej. 0414-1234567"></label>
+            <label class="campo" for="r-carrera">Carrera o área<input id="r-carrera" maxlength="80" placeholder="Ej. Ingeniería de Sistemas"></label>
+          </div>
+          <div class="seccion">
+            <div class="seccion-cab"><span class="ic"><svg class="i"><use href="#i-corazon"/></svg></span><div><b>Información médica</b><small>Opcional, pero puede salvarte la vida.</small></div></div>
+            <fieldset class="grupo"><legend>Tipo de sangre</legend>
+              <div class="chips-sel sangre" id="r-sangre"></div>
+            </fieldset>
+            <label class="campo" for="r-cond">Condiciones médicas<textarea id="r-cond" class="corta" maxlength="300" placeholder="Ej. asma, diabetes, epilepsia"></textarea></label>
+            <label class="campo" for="r-alerg">Alergias<textarea id="r-alerg" class="corta" maxlength="300" placeholder="Ej. penicilina, maní"></textarea></label>
+            <label class="campo" for="r-med">Medicamentos que tomas<textarea id="r-med" class="corta" maxlength="300" placeholder="Ej. salbutamol (inhalador)"></textarea></label>
+          </div>
+          <div class="seccion">
+            <div class="seccion-cab"><span class="ic"><svg class="i"><use href="#i-telefono"/></svg></span><div><b>Contacto de emergencia</b><small>A quién avisar si te ocurre algo.</small></div></div>
+            <label class="campo" for="r-cnombre">Nombre<input id="r-cnombre" maxlength="80" placeholder="Ej. Carmen Pérez"></label>
+            <div class="dos par">
+              <label class="campo" for="r-cparent">Parentesco<input id="r-cparent" maxlength="40" placeholder="Ej. Madre"></label>
+              <label class="campo" for="r-ctel">Teléfono<input id="r-ctel" maxlength="20" placeholder="0412-7654321"></label>
+            </div>
+          </div>
+          <label class="acepto"><input type="checkbox" id="r-consent"><span class="caja"><svg class="i"><use href="#i-check"/></svg></span><span>Autorizo que mis datos se compartan con los Bomberos Universitarios <b>únicamente en una emergencia</b>: cuando yo envíe una alerta o cuando otra persona reporte que me ocurrió algo.</span></label>
+          <p class="t-error" id="reg-error" hidden></p>
+          <button class="t-btn" type="submit">Guardar registro<svg class="i"><use href="#i-check"/></svg></button>
+          <button class="t-enlace" type="button" id="reg-luego">Completar más tarde</button>
+        </form>
+      </div>
+
+      <!-- 3. Inicio -->
+      <div class="vista" id="v-inicio" hidden>
+        <div class="cab">
+          <div class="marca"><svg aria-hidden="true"><use href="#logo"/></svg>SOS USM</div>
+          <span class="chip" id="chip-gps"><svg class="i"><use href="#i-pin"/></svg>±6 m</span>
+        </div>
+        <div class="inicio">
+          <div class="saludo">
+            <h3>¿Qué está pasando?</h3>
+            <div class="fila-estado">
+              <p><span class="punto-vivo"></span> <span id="ubic-texto">Ubicación activa</span></p>
+              <button class="pill" id="btn-mi-registro" hidden><svg class="i"><use href="#i-usuario"/></svg>Mi registro</button>
+            </div>
+          </div>
+          <div class="aviso-caja offline" id="inicio-offline" hidden><span class="punto"></span><span><b>Sin conexión con la central.</b> Puedes reportar igual: la IA del teléfono te orientará y la alerta se enviará al volver la señal.<span id="inicio-pend"></span></span></div>
+          <button class="aviso-caja registro" id="inicio-sinreg"><svg class="i"><use href="#i-usuario"/></svg><span><b>Completa tu registro</b> para que, en una alerta SOS, los bomberos reciban tus datos.</span></button>
+          <button class="activa" id="btn-volver" hidden><span class="pulso"></span><span><b>Tienes una emergencia activa</b><small>Toca para ver el estado y el chat</small></span><svg class="i"><use href="#i-flecha"/></svg></button>
+          <button class="opcion-grande" id="btn-normal">
+            <span class="og-ic"><svg class="i"><use href="#i-doc"/></svg></span>
+            <b>Reportar una emergencia</b>
+            <small>Accidentes, malestares, incendios, fugas o riesgos de seguridad. Describe lo que ocurre y recibe instrucciones de inmediato.</small>
+          </button>
+          <button class="opcion-roja" id="btn-alta">
+            <span class="or-fila"><svg class="i"><use href="#i-alerta"/></svg><b>Emergencia de alta prioridad</b><svg class="i"><use href="#i-flecha"/></svg></span>
+            <small>Solo para casos extremadamente críticos con riesgo inminente para la vida. El uso indebido puede traer repercusiones.</small>
+          </button>
+        </div>
+      </div>
+
+      <!-- 4. Alta prioridad -->
+      <div class="vista" id="v-alta" hidden>
+        <div class="cab"><button class="atras" data-ir="inicio" aria-label="Volver"><svg class="i"><use href="#i-atras"/></svg></button><span class="cab-t">Alta prioridad</span><span class="hueco"></span></div>
+        <div class="alta">
+          <div class="adv">
+            <div class="adv-cab"><svg class="i"><use href="#i-alerta"/></svg>Solo para casos extremadamente críticos</div>
+            <p>Esta alerta se envía con <b>máxima prioridad</b> y moviliza de inmediato a los Bomberos Universitarios, <b>sin que tengas que escribir nada</b>.</p>
+            <div class="listas">
+              <div><h4>Úsala si hay</h4><ul class="si"><li>Una persona inconsciente o que no respira</li><li>Un incendio fuera de control</li><li>Una agresión con armas</li><li>Personas atrapadas</li></ul></div>
+              <div><h4>No la uses para</h4><ul class="no"><li>Malestares o golpes leves</li><li>Consultas o pruebas</li><li>Lo que puedes describir con calma</li></ul></div>
+            </div>
+            <p class="legal">Cada alerta queda registrada con tu dispositivo, ubicación y hora. <b>El uso indebido de esta opción puede traer repercusiones disciplinarias</b> según el reglamento de la Universidad Santa María.</p>
+            <label class="acepto"><input type="checkbox" id="acepto"><span class="caja"><svg class="i"><use href="#i-check"/></svg></span><span>Entiendo y confirmo que se trata de una emergencia crítica.</span></label>
+          </div>
+          <div id="alta-ficha"></div>
+          <div class="zona-sos">
+            <button class="sos" id="btn-sos" disabled aria-label="Enviar alerta SOS: mantén presionado 3 segundos">
+              <svg viewBox="0 0 120 120" class="anillo" aria-hidden="true"><circle cx="60" cy="60" r="56"/></svg><span>SOS</span>
+            </button>
+            <p class="sos-ayuda" id="sos-ayuda">Marca la casilla de confirmación para activar</p>
+          </div>
+          <button class="t-enlace" data-ir="form">No es tan grave: reportar una emergencia normal</button>
+        </div>
+      </div>
+
+      <!-- 5. Reporte normal -->
+      <div class="vista" id="v-form" hidden>
+        <div class="cab"><button class="atras" data-ir="inicio" aria-label="Volver"><svg class="i"><use href="#i-atras"/></svg></button><span class="cab-t">Reportar emergencia</span><span class="hueco"></span></div>
+        <form class="formulario" id="formulario" novalidate>
+          <div class="reportas" id="reportas" hidden>
+            <span class="ic"><svg class="i"><use href="#i-usuario"/></svg></span>
+            <div><small>REPORTAS COMO</small><b id="rep-nombre"></b><span class="sub" id="rep-sub"></span></div>
+            <svg class="i ok"><use href="#i-check"/></svg>
+          </div>
+          <button type="button" class="nota-reg" id="form-sinreg">No estás registrado, así que necesitamos tus datos básicos. <b>Regístrate</b> para no escribirlos cada vez.</button>
+          <div id="datos-persona" style="display:flex;flex-direction:column;gap:15px">
+            <fieldset class="grupo"><legend>Soy parte de la comunidad USM como</legend>
+              <div class="chips-sel">
+                <label><input type="radio" name="tipoUsuario" id="tu-est" value="estudiante" checked><span>Estudiante</span></label>
+                <label><input type="radio" name="tipoUsuario" id="tu-pro" value="profesor"><span>Profesor</span></label>
+                <label><input type="radio" name="tipoUsuario" id="tu-adm" value="administrativo"><span>Personal administrativo</span></label>
+                <label><input type="radio" name="tipoUsuario" id="tu-seg" value="seguridad"><span>Seguridad</span></label>
+                <label><input type="radio" name="tipoUsuario" id="tu-lim" value="limpieza"><span>Limpieza y mantenimiento</span></label>
+              </div>
+            </fieldset>
+            <div class="dos">
+              <label class="campo" for="f-nombre">Nombre completo<input id="f-nombre" name="nombre" maxlength="80" placeholder="Ej. María Pérez"></label>
+              <label class="campo" for="f-edad">Edad<input id="f-edad" name="edad" type="number" min="1" max="120" placeholder="21"></label>
+            </div>
+          </div>
+          <fieldset class="grupo"><legend>¿Quién necesita ayuda?</legend>
+            <div class="segmento">
+              <label><input type="radio" name="rol" id="rol-a" value="afectado" checked><span><b>Yo</b><small>Soy el afectado</small></span></label>
+              <label><input type="radio" name="rol" id="rol-o" value="observador"><span><b>Otra persona</b><small>Soy observador</small></span></label>
+            </div>
+          </fieldset>
+          <div class="obs-bloque" id="obs-bloque" hidden>
+            <fieldset class="grupo"><legend>¿Conoces a la persona afectada?</legend>
+              <div class="segmento corto">
+                <label><input type="radio" name="conoce" id="conoce-si" value="si"><span><b>Sí, la conozco</b></span></label>
+                <label><input type="radio" name="conoce" id="conoce-no" value="no"><span><b>No la conozco</b></span></label>
+              </div>
+            </fieldset>
+            <div id="af-campos" hidden style="display:flex;flex-direction:column;gap:12px">
+              <p class="nota-obs">Si la persona está consciente, pregúntale. Si está registrada en SOS USM, los bomberos recibirán su ficha médica (tú no verás esos datos).</p>
+              <label class="campo" for="af-nombre">Nombre y apellido<input id="af-nombre" maxlength="80" placeholder="Ej. Carlos Mendoza"></label>
+              <div class="dos par2">
+                <label class="campo" for="af-edad">Edad<input id="af-edad" type="number" min="1" max="120" placeholder="21"></label>
+                <label class="campo" for="af-cedula">Cédula <span class="opc">(si la sabes)</span><input id="af-cedula" maxlength="14" placeholder="V-27888999"></label>
+              </div>
+            </div>
+          </div>
+          <label class="campo" for="f-desc">Describe brevemente lo que pasó<textarea id="f-desc" name="descripcion" maxlength="600" rows="4" placeholder="Qué ocurrió, dónde estás y cuántas personas están afectadas"></textarea></label>
+          <div class="sugerencias">
+            <button type="button" data-txt="Hay humo y fuego en ">Incendio</button>
+            <button type="button" data-txt="Una persona se desmayó y ">Desmayo</button>
+            <button type="button" data-txt="Una persona se cayó y se golpeó ">Caída</button>
+            <button type="button" data-txt="Hay olor a gas en ">Olor a gas</button>
+            <button type="button" data-txt="Alguien tiene dolor fuerte en el pecho ">Dolor de pecho</button>
+          </div>
+          <p class="t-error" id="form-error" hidden></p>
+          <button class="t-btn" type="submit">Enviar reporte<svg class="i"><use href="#i-enviar"/></svg></button>
+          <p class="nota">Tu ubicación GPS se adjunta automáticamente.</p>
+        </form>
+      </div>
+
+      <!-- 6. Emergencia activa -->
+      <div class="vista" id="v-inc" hidden>
+        <div class="cab"><button class="atras" data-ir="inicio" aria-label="Volver"><svg class="i"><use href="#i-atras"/></svg></button><span class="cab-t" id="inc-cod">Emergencia</span><span class="chip" id="inc-chip"><svg class="i"><use href="#i-pin"/></svg><span>En vivo</span></span></div>
+        <div class="incidente">
+          <div class="estado-hero" id="estado">
+            <div class="estado-fila"><span class="pulso"></span><div><b id="estado-t">Alerta enviada</b><small id="estado-d"></small></div></div>
+            <ol class="linea" id="linea"><li data-e="nuevo">Enviada</li><li data-e="recibido">Recibida</li><li data-e="en_camino">En camino</li><li data-e="en_sitio">En sitio</li><li data-e="resuelto">Atendida</li></ol>
+            <button class="reintentar" id="btn-reintentar" hidden>Reintentar ahora</button>
+          </div>
+          <div class="contacto" id="contacto" hidden>
+            <b>Contacto directo sin internet</b>
+            <p>Las llamadas y los SMS funcionan con la señal telefónica, aunque no tengas datos.</p>
+            <span class="num">Bomberos USM: 0212-000-0000 (número de ejemplo)</span>
+            <div class="fila2">
+              <button id="btn-llamar" style="background:var(--azul-600)"><svg class="i"><use href="#i-telefono"/></svg>Llamar</button>
+              <button id="btn-sms" style="background:var(--azul-800)"><svg class="i"><use href="#i-chat"/></svg>SMS con ubicación</button>
+            </div>
+          </div>
+          <div class="tarj">
+            <div class="ia-cab"><span class="ia-tag"><svg class="i"><use href="#i-ia"/></svg>Asistente IA</span><span class="sev" id="ia-sev">…</span></div>
+            <h4 id="ia-tipo">Analizando la situación…</h4>
+            <p class="ia-sub">Qué hacer ahora</p>
+            <ol class="recs" id="ia-recs"></ol>
+            <small class="fuente" id="ia-fuente"></small>
+          </div>
+          <div class="tarj t-chat">
+            <div class="t-chat-cab"><span class="ic"><svg class="i"><use href="#i-chat"/></svg></span><div><b>Bomberos Universitarios</b><small>Chat directo con la central</small></div></div>
+            <div class="t-msgs" id="t-msgs"></div>
+            <form class="t-chat-form" id="t-chat-form"><input id="t-chat-in" placeholder="Escribe un mensaje…" autocomplete="off" maxlength="500"><button aria-label="Enviar mensaje"><svg class="i"><use href="#i-enviar"/></svg></button></form>
+          </div>
+          <button class="t-btn sec" id="btn-cerrar" hidden>Cerrar y volver al inicio</button>
+        </div>
+      </div>
+
+      <div class="overlay" id="overlay" hidden><div class="onda">SOS</div><h3 id="overlay-t">Alerta SOS enviada</h3><p id="overlay-p">Los Bomberos Universitarios recibieron tu ubicación con máxima prioridad.</p></div>
+      <div class="t-toast" id="t-toast" hidden></div>
+    </div></div>
+  </section>
+
+  <section aria-label="Central de Bomberos Universitarios" style="min-width:0">
+    <p class="rotulo">Central de Bomberos Universitarios</p>
+    <div class="central">
+      <div class="banner" id="banner" hidden>ALERTA SOS · MÁXIMA PRIORIDAD</div>
+      <div class="c-cab">
+        <div class="c-marca"><svg aria-hidden="true"><use href="#logo"/></svg><div><b>Central SOS USM</b><small>Bomberos Universitarios · tiempo real</small></div></div>
+        <div class="kpis">
+          <div class="kpi"><span id="k-act">0</span><small>Activas</small></div>
+          <div class="kpi critico"><span id="k-cri">0</span><small>Críticas</small></div>
+          <div class="kpi"><span id="k-usr">0</span><small>En línea</small></div>
+          <div class="kpi"><span id="k-tot">0</span><small>Total</small></div>
+        </div>
+        <div class="c-acc"><span class="c-chip" id="c-chip">● En línea · IA activa</span><button class="btn-silenciar" id="silenciar" hidden>Silenciar alarma</button></div>
+      </div>
+      <div class="c-cuerpo">
+        <div class="c-lista" id="c-lista"></div>
+        <div class="c-mapa" id="c-mapa">
+          <div class="leyenda"><span><i style="background:var(--peligro)"></i>P5 crítica</span><span><i style="background:var(--naranja)"></i>P4 alta</span><span><i style="background:var(--amarillo)"></i>P3</span><span><i style="background:#7aa2ff"></i>Usuario en línea</span></div>
+        </div>
+        <div class="c-det" id="c-det"></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<p class="nota-pie">Esta página simula el servidor dentro del navegador para que puedas probar todo aquí mismo. La recomendación de la IA la genera el mismo motor que lleva la app (<code>motorIA.js</code>: Naive Bayes + sistema experto), que funciona sin internet. En el sistema real, el teléfono y la central se conectan por Socket.IO y, cuando hay internet, Claude refina el análisis.</p>
+
+<script>
+/* ======================= IA del teléfono (motorIA.js, idéntico al de la app) ======================= */
+const { analizarEmergencia, analisisSOS } = (() => {
+  const module = { exports: {} };
+// ============================================================================
+//  Motor de IA de SOS USM – funciona SIN INTERNET, dentro del teléfono.
+//
+//  Dos etapas:
+//   1. Clasificador de texto Naive Bayes multinomial (aprendizaje automático),
+//      entrenado con frases de ejemplo en español venezolano, que identifica el
+//      tipo de emergencia a partir de la descripción.
+//   2. Sistema experto (reglas) que fija la severidad y la prioridad, y genera
+//      recomendaciones de primeros auxilios adaptadas al rol (afectado u
+//      observador), a la edad y a la ficha médica registrada.
+//
+//  Está escrito en JavaScript sin dependencias (CommonJS) para que lo usen
+//  tanto la app React Native como el servidor Node.js.
+// ============================================================================
+
+const VERSION = "1.0";
+
+// ---------------------------------------------------------------------------
+//  Base de conocimiento: clases, ejemplos de entrenamiento y protocolos
+// ---------------------------------------------------------------------------
+const CLASES = {
+  incendio: {
+    categoria: "incendio",
+    subtipo: "Incendio / humo",
+    severidad: "alta",
+    recursos: ["Unidad contra incendios", "Extintores", "Equipo de evacuación"],
+    claves: ["fuego", "incendio", "llama", "humo", "incendi", "ardiendo", "explot", "explosion", "prendio fuego", "se prendio", "se quema el", "se esta quemando"],
+    ejemplos: [
+      "hay fuego en el salon", "se esta quemando el laboratorio", "sale mucho humo del edificio",
+      "hay un incendio en la cafeteria", "se prendio fuego la papelera", "huele a quemado y hay humo",
+      "las llamas estan saliendo por la ventana", "exploto algo y hay fuego", "se incendio un carro en el estacionamiento",
+      "hay humo negro en el pasillo", "se quema la cocina de la cafeteria", "hay un conato de incendio en el aula",
+      "se prendio un cable y hay llamas", "el humo no deja ver en el piso", "esta ardiendo el deposito",
+    ],
+    recomendaciones: {
+      afectado: [
+        "Aléjate del fuego y del humo de inmediato; no regreses por tus pertenencias.",
+        "Si hay humo, desplázate agachado y cúbrete nariz y boca con un paño (húmedo si es posible).",
+        "No uses ascensores; baja por las escaleras siguiendo la ruta de evacuación.",
+        "Si tu ropa se prende: detente, tírate al suelo y rueda.",
+        "Ve al punto de encuentro y espera a los Bomberos Universitarios.",
+      ],
+      observador: [
+        "Activa la alarma más cercana y avisa a las personas a tu alrededor.",
+        "Usa un extintor solo si el fuego es pequeño y tienes una salida a tu espalda.",
+        "Evacúa sin correr, sin usar ascensores, y cierra las puertas al salir.",
+        "No vuelvas a entrar; indica a los bomberos si hay personas atrapadas.",
+      ],
+    },
+  },
+  cardiaca: {
+    categoria: "medica",
+    subtipo: "Emergencia cardíaca",
+    severidad: "critica",
+    recursos: ["Paramédicos", "DEA (desfibrilador)", "Ambulancia"],
+    claves: ["pecho", "infarto", "corazon", "paro cardiaco", "palpitaciones", "brazo izquierdo"],
+    ejemplos: [
+      "me duele mucho el pecho", "le duele el pecho y el brazo izquierdo", "creo que le esta dando un infarto",
+      "tiene dolor en el pecho y suda frio", "le dio un paro cardiaco", "siento presion en el pecho",
+      "el profesor se agarra el pecho y no puede hablar", "tengo palpitaciones muy fuertes", "el corazon me late muy rapido y me duele",
+      "se desplomo agarrandose el pecho", "tiene dolor en el pecho que le baja al brazo", "le esta fallando el corazon",
+    ],
+    recomendaciones: {
+      afectado: [
+        "Detén toda actividad y siéntate o recuéstate en un lugar seguro.",
+        "Afloja la ropa ajustada y respira con calma.",
+        "Pide a alguien cercano que se quede contigo hasta que llegue la ayuda.",
+        "No camines ni subas escaleras; espera a los paramédicos.",
+      ],
+      observador: [
+        "Mantén a la persona en reposo, sentada o recostada, y no la dejes sola.",
+        "Si pierde el conocimiento y no respira, inicia RCP: 30 compresiones fuertes y rápidas en el centro del pecho.",
+        "Pide que traigan el DEA (desfibrilador) más cercano y sigue sus instrucciones de voz.",
+        "No le des comida ni bebida.",
+      ],
+    },
+  },
+  respiratoria: {
+    categoria: "medica",
+    subtipo: "Dificultad respiratoria",
+    severidad: "critica",
+    recursos: ["Paramédicos", "Oxígeno", "Ambulancia"],
+    claves: ["no respira", "no puede respirar", "respirar", "ahoga", "asma", "asfixia", "atragant", "se ahoga", "falta de aire"],
+    ejemplos: [
+      "no puede respirar", "se esta ahogando", "le dio un ataque de asma", "se atraganto con comida",
+      "le falta el aire", "no respira bien y esta morado", "tiene una crisis de asma y no tiene inhalador",
+      "me cuesta respirar", "se atoro con algo y no puede hablar", "respira muy rapido y con silbido",
+      "siente que se asfixia", "tiene los labios morados y no respira",
+    ],
+    recomendaciones: {
+      afectado: [
+        "Siéntate erguido e inclínate un poco hacia adelante.",
+        "Si tienes inhalador, úsalo ahora.",
+        "Respira lento: inhala por la nariz y exhala por la boca.",
+        "Busca un lugar ventilado, lejos del humo o el polvo.",
+      ],
+      observador: [
+        "Si se atraganta y no puede hablar ni toser, aplica la maniobra de Heimlich.",
+        "Ayuda a la persona a sentarse erguida y aflójale la ropa.",
+        "Si deja de respirar, inicia RCP y pide el DEA.",
+        "Mantén el área despejada y ventilada.",
+      ],
+    },
+  },
+  inconsciencia: {
+    categoria: "medica",
+    subtipo: "Pérdida de conocimiento / convulsión",
+    severidad: "alta",
+    recursos: ["Paramédicos", "Ambulancia"],
+    claves: ["desmay", "inconsciente", "convuls", "no reacciona", "no responde", "epilep", "yeyo", "se desvanecio", "perdio el conocimiento"],
+    ejemplos: [
+      "se desmayo en el pasillo", "esta inconsciente en el piso", "le dio un yeyo", "esta convulsionando",
+      "no reacciona cuando le hablo", "se cayo al piso y no responde", "le dio un ataque de epilepsia",
+      "perdio el conocimiento en clase", "se desvanecio de repente", "esta tirado en el suelo sin moverse",
+      "se le pusieron los ojos en blanco y se cayo", "me estoy desmayando",
+    ],
+    recomendaciones: {
+      afectado: [
+        "Si te sientes mareado, acuéstate en el suelo y eleva las piernas.",
+        "No te levantes de golpe.",
+        "Avisa a alguien cercano para que te acompañe.",
+      ],
+      observador: [
+        "Comprueba si responde y si respira.",
+        "Si respira, colócala de lado (posición lateral de seguridad).",
+        "Si convulsiona: retira objetos cercanos, protege su cabeza y NO le metas nada en la boca.",
+        "Si no respira, inicia RCP y pide el DEA.",
+      ],
+    },
+  },
+  trauma: {
+    categoria: "trauma",
+    subtipo: "Traumatismo / herida",
+    severidad: "moderada",
+    recursos: ["Paramédicos", "Kit de trauma", "Camilla"],
+    claves: ["caida", "cayo", "cai", "fractura", "golpe", "sangr", "herida", "corte", "hueso", "esguince", "tobillo", "accidente", "atropell", "choque", "escalera"],
+    ejemplos: [
+      "se cayo por las escaleras", "me cai y me duele el tobillo", "se golpeo la cabeza", "tiene una herida que sangra mucho",
+      "se corto la mano con un vidrio", "creo que se fracturo el brazo", "lo atropello un carro en la entrada",
+      "choque de motos en el estacionamiento", "se torcio el pie jugando", "tiene el hueso salido",
+      "se resbalo y no se puede levantar", "le cayo algo pesado encima", "esta sangrando por la nariz y la cabeza",
+    ],
+    recomendaciones: {
+      afectado: [
+        "No te muevas si sientes dolor en el cuello o la espalda.",
+        "Presiona la herida con un paño limpio para detener el sangrado.",
+        "No intentes enderezar una extremidad deformada.",
+        "Mantente abrigado y en calma hasta que llegue la ayuda.",
+      ],
+      observador: [
+        "No muevas a la persona salvo que esté en peligro inmediato.",
+        "Aplica presión directa y firme sobre la herida con un paño limpio.",
+        "Inmoviliza la zona lesionada tal como está.",
+        "Mantén a la persona consciente, hablándole y abrigada.",
+      ],
+    },
+  },
+  quemadura: {
+    categoria: "trauma",
+    subtipo: "Quemadura",
+    severidad: "moderada",
+    recursos: ["Paramédicos", "Kit de quemaduras"],
+    claves: ["quemadura", "me queme", "se quemo", "agua hirviendo", "aceite caliente", "ampolla"],
+    ejemplos: [
+      "me queme la mano con aceite caliente", "se quemo con agua hirviendo", "tiene una quemadura en el brazo",
+      "le salieron ampollas por una quemadura", "se quemo con un acido en el laboratorio", "me cayo cafe hirviendo encima",
+      "se quemo la cara con el mechero", "tiene la piel roja y quemada",
+    ],
+    recomendaciones: {
+      afectado: [
+        "Enfría la quemadura con agua corriente (no helada) durante 10 a 20 minutos.",
+        "Quítate anillos, relojes o ropa cerca de la zona, salvo que estén pegados a la piel.",
+        "No revientes las ampollas ni apliques pasta dental, aceite ni hielo.",
+        "Cubre la zona con un paño limpio y húmedo.",
+      ],
+      observador: [
+        "Aleja a la persona de la fuente de calor.",
+        "Enfría la quemadura con agua corriente durante 10 a 20 minutos.",
+        "No reventar ampollas ni aplicar remedios caseros.",
+        "Cubre con un paño limpio y vigila que respire bien si la quemadura es en la cara.",
+      ],
+    },
+  },
+  alergia: {
+    categoria: "medica",
+    subtipo: "Reacción alérgica",
+    severidad: "alta",
+    recursos: ["Paramédicos", "Epinefrina", "Ambulancia"],
+    claves: ["alergi", "anafila", "ronchas", "se hincho", "hinchazon", "picadura", "abeja", "urticaria"],
+    ejemplos: [
+      "le dio una reaccion alergica", "se le hincho la cara despues de comer", "lo pico una abeja y se esta hinchando",
+      "tiene ronchas en todo el cuerpo", "es alergico al mani y comio", "se le esta cerrando la garganta por alergia",
+      "tiene la boca y los ojos hinchados", "le dio urticaria y le pica todo",
+    ],
+    recomendaciones: {
+      afectado: [
+        "Si tienes autoinyector de epinefrina (EpiPen), úsalo ahora en el muslo.",
+        "Aléjate de lo que causó la reacción (comida, insecto, sustancia).",
+        "Siéntate erguido si te cuesta respirar; acuéstate con las piernas elevadas si te mareas.",
+        "Si tienes antialérgico indicado por tu médico, tómalo.",
+      ],
+      observador: [
+        "Pregunta si tiene autoinyector de epinefrina y ayúdale a usarlo.",
+        "Aleja a la persona de lo que causó la reacción.",
+        "Vigila su respiración; si deja de respirar, inicia RCP.",
+        "No le des comida ni bebida.",
+      ],
+    },
+  },
+  gas_quimico: {
+    categoria: "fuga_gas_quimico",
+    subtipo: "Fuga de gas / derrame químico",
+    severidad: "alta",
+    recursos: ["Unidad HAZMAT", "Equipo de evacuación", "Ventilación"],
+    claves: ["gas", "olor a gas", "quimic", "derrame", "toxic", "vapor", "reactivo", "acido"],
+    ejemplos: [
+      "huele mucho a gas", "hay una fuga de gas en la cafeteria", "se derramo un quimico en el laboratorio",
+      "hay vapores toxicos", "se rompio un frasco de reactivo", "huele raro y nos esta picando la garganta",
+      "se escapa gas de la bombona", "se derramo acido en el mesón", "hay un olor fuerte a quimicos",
+    ],
+    recomendaciones: {
+      afectado: [
+        "Sal del área de inmediato hacia un lugar ventilado.",
+        "No enciendas ni apagues interruptores, ni uses encendedores.",
+        "Si un químico te tocó la piel o los ojos, lávate con abundante agua durante 15 minutos.",
+        "Cúbrete nariz y boca, y no comas ni bebas nada.",
+      ],
+      observador: [
+        "Evacúa a las personas del área sin activar aparatos eléctricos.",
+        "Abre puertas y ventanas solo si es seguro hacerlo al salir.",
+        "No toques ni intentes limpiar el derrame.",
+        "Si puedes, identifica el nombre del producto para los bomberos.",
+      ],
+    },
+  },
+  estructural: {
+    categoria: "estructural",
+    subtipo: "Daño estructural / sismo",
+    severidad: "alta",
+    recursos: ["Rescate estructural", "Equipo de evacuación", "Paramédicos"],
+    claves: ["derrumb", "colaps", "grieta", "sismo", "temblor", "terremoto", "atrapad", "escombro", "se cayo el techo", "se cayo una pared"],
+    ejemplos: [
+      "se derrumbo una pared", "esta temblando", "hubo un terremoto", "hay personas atrapadas en los escombros",
+      "se cayo parte del techo", "hay grietas grandes en la columna", "colapso la escalera",
+      "quedamos atrapados en el ascensor", "se desplomo el techo del salon", "hay un sismo fuerte",
+    ],
+    recomendaciones: {
+      afectado: [
+        "Si estás atrapado, cúbrete boca y nariz y golpea tuberías o paredes para que te ubiquen.",
+        "Usa la linterna del teléfono y ahorra batería.",
+        "Si puedes salir, aléjate de ventanas, paredes dañadas y cables.",
+        "Ve a un espacio abierto y seguro.",
+      ],
+      observador: [
+        "No entres a estructuras dañadas.",
+        "Aleja a las personas del área afectada y de posibles réplicas.",
+        "Indica a los bomberos la ubicación exacta de posibles atrapados.",
+        "Mantén despejadas las vías de acceso.",
+      ],
+    },
+  },
+  electrica: {
+    categoria: "electrica",
+    subtipo: "Riesgo eléctrico",
+    severidad: "alta",
+    recursos: ["Unidad de rescate", "Mantenimiento eléctrico", "Paramédicos"],
+    claves: ["electric", "cortocircuito", "cable", "chispa", "corriente", "electrocut", "tablero", "descarga"],
+    ejemplos: [
+      "le dio corriente", "hay un cortocircuito en el tablero", "un cable pelado esta echando chispas",
+      "se electrocuto un obrero", "recibio una descarga electrica", "hay cables caidos en el agua",
+      "salen chispas del enchufe", "esta pegado a la corriente",
+    ],
+    recomendaciones: {
+      afectado: [
+        "Aléjate de cables, charcos y equipos eléctricos.",
+        "Si recibiste una descarga, no te muevas bruscamente y espera la evaluación médica.",
+        "No toques a otras personas que estén en contacto con la corriente.",
+      ],
+      observador: [
+        "NO toques a la persona si sigue en contacto con la corriente.",
+        "Corta la energía desde el tablero solo si es seguro hacerlo.",
+        "Usa un objeto seco y no conductor (madera, plástico) para separar a la víctima.",
+        "Si no respira, inicia RCP cuando ya no haya riesgo eléctrico.",
+      ],
+    },
+  },
+  seguridad: {
+    categoria: "seguridad",
+    subtipo: "Incidente de seguridad",
+    severidad: "alta",
+    recursos: ["Seguridad universitaria", "Policía", "Paramédicos"],
+    claves: ["robo", "robaron", "asalt", "arma", "pistola", "cuchillo", "pelea", "agresi", "amenaz", "violen", "disparo", "tiro", "acoso", "atraco"],
+    ejemplos: [
+      "me robaron el telefono", "hay una pelea en la cafeteria", "un hombre armado esta amenazando", "se escucharon disparos",
+      "estan asaltando en la parada", "me estan acosando", "le pegaron a un estudiante", "hay un tipo con un cuchillo",
+      "atracaron a una profesora en el estacionamiento", "hay una persona sospechosa siguiendome", "hubo un tiroteo afuera",
+    ],
+    recomendaciones: {
+      afectado: [
+        "Prioriza tu vida: no te resistas ni enfrentes al agresor.",
+        "Busca un lugar seguro con otras personas; cierra con llave si puedes.",
+        "Pon el teléfono en silencio y usa el chat para comunicarte.",
+        "Memoriza rasgos del agresor solo si es seguro.",
+      ],
+      observador: [
+        "No intervengas directamente; mantén una distancia segura.",
+        "Aléjate y guía a otros hacia un lugar seguro.",
+        "Reporta por el chat: número de personas, descripción y dirección de huida.",
+      ],
+    },
+  },
+  malestar: {
+    categoria: "medica",
+    subtipo: "Malestar general",
+    severidad: "baja",
+    recursos: ["Enfermería / primeros auxilios"],
+    claves: ["mareo", "mareado", "fiebre", "vomit", "nausea", "dolor de cabeza", "dolor de barriga", "tension", "presion alta", "azucar", "debil"],
+    ejemplos: [
+      "me siento mareado", "tengo mucha fiebre", "estoy vomitando", "tengo un dolor de cabeza muy fuerte",
+      "me duele mucho la barriga", "me subio la tension", "le bajo el azucar", "me siento debil y con nauseas",
+      "tengo la presion alta", "me duele el estomago desde la manana", "estoy temblando de fiebre",
+    ],
+    recomendaciones: {
+      afectado: [
+        "Siéntate o acuéstate en un lugar fresco y tranquilo.",
+        "Toma agua a sorbos pequeños si no tienes náuseas.",
+        "Si tomas algún medicamento indicado para esto, tómalo según tu tratamiento.",
+        "Avisa en el chat si los síntomas empeoran.",
+      ],
+      observador: [
+        "Ayuda a la persona a sentarse o acostarse en un lugar fresco.",
+        "Ofrécele agua a sorbos si está consciente y no vomita.",
+        "Quédate con ella y avisa en el chat si empeora o pierde el conocimiento.",
+      ],
+    },
+  },
+  crisis_emocional: {
+    categoria: "medica",
+    subtipo: "Crisis de ansiedad / emocional",
+    severidad: "moderada",
+    recursos: ["Orientación / psicología", "Enfermería"],
+    claves: ["ansiedad", "ataque de panico", "crisis nerviosa", "llorando", "no puedo calmarme", "me quiero morir", "suicid", "hacerse dano"],
+    ejemplos: [
+      "tengo un ataque de ansiedad", "estoy teniendo un ataque de panico", "no puede parar de llorar y temblar",
+      "le dio una crisis nerviosa", "no me puedo calmar", "un estudiante dice que se quiere hacer dano",
+      "siento que me voy a morir de la ansiedad", "esta muy alterado y respira rapido por nervios",
+    ],
+    recomendaciones: {
+      afectado: [
+        "Busca un lugar tranquilo y siéntate.",
+        "Respira lento: inhala en 4 segundos, sostén 4 y exhala en 6. Repite varias veces.",
+        "Nombra 5 cosas que ves y 4 que puedes tocar para enfocarte en el presente.",
+        "No estás solo: la ayuda va en camino y puedes escribir en el chat.",
+      ],
+      observador: [
+        "Acompaña a la persona en un lugar tranquilo y háblale con calma.",
+        "No la juzgues ni la presiones; escúchala.",
+        "Ayúdala a respirar lento contigo.",
+        "Si menciona hacerse daño, no la dejes sola y avisa en el chat de inmediato.",
+      ],
+    },
+  },
+};
+
+// Protocolo de regla (no aprendido): persona inconsciente que no respira = posible paro cardiorrespiratorio
+const PARO = {
+  categoria: "medica",
+  subtipo: "Posible paro cardiorrespiratorio",
+  severidad: "critica",
+  recursos: ["Paramédicos", "DEA (desfibrilador)", "Ambulancia"],
+  recomendaciones: {
+    afectado: [
+      "Pide a la persona más cercana que lea estas instrucciones y te ayude.",
+      "Acuéstate boca arriba en el suelo y no te muevas.",
+      "La ayuda va en camino con un desfibrilador (DEA).",
+    ],
+    observador: [
+      "Inicia RCP ya: coloca las manos en el centro del pecho y comprime fuerte y rápido (100 a 120 por minuto).",
+      "Si sabes hacerlo, da 2 ventilaciones cada 30 compresiones; si no, solo compresiones sin parar.",
+      "Pide a alguien que traiga el DEA más cercano y sigue sus instrucciones de voz.",
+      "No te detengas hasta que la persona respire o lleguen los Bomberos Universitarios.",
+    ],
+  },
+};
+
+const GENERICO = {
+  categoria: "otro",
+  subtipo: "Emergencia no especificada",
+  severidad: "moderada",
+  recursos: ["Unidad de primera respuesta"],
+  recomendaciones: {
+    afectado: [
+      "Mantén la calma y ubícate en un lugar seguro.",
+      "Permanece donde estás si es seguro; los bomberos tienen tu ubicación.",
+      "Describe en el chat qué está pasando para orientarte mejor.",
+    ],
+    observador: [
+      "Mantén una distancia segura y no te expongas a riesgos.",
+      "Acompaña al afectado y mantenlo tranquilo.",
+      "Describe en el chat qué está pasando para orientarte mejor.",
+    ],
+  },
+};
+
+// Señales que elevan la severidad a crítica, sin importar la clase
+const SENALES_CRITICAS = [
+  "no respira", "inconsciente", "no reacciona", "no responde", "mucha sangre", "sangra mucho", "sangrando mucho", "atrapad", "arma", "pistola",
+  "disparo", "tiroteo", "explot", "paro", "varios heridos", "muchas personas", "morado", "se quiere hacer dano",
+  "suicid", "se esta cerrando la garganta", "hueso salido",
+];
+
+const NIVELES = ["baja", "moderada", "alta", "critica"];
+const PRIORIDAD = { baja: 2, moderada: 3, alta: 4, critica: 5 };
+
+// ---------------------------------------------------------------------------
+//  Procesamiento de lenguaje natural
+// ---------------------------------------------------------------------------
+const PALABRAS_VACIAS = new Set(
+  ("a al algo alguien ante con contra de del desde el ella ellos en entre es esta estan este esto hay la las le les lo los me mi mis " +
+    "muy nos o para pero por que se si sin sobre su sus te tiene tengo un una uno unos unas y ya yo ahi aqui alla esa ese eso como cuando " +
+    "donde fue ha han hace estoy estamos esta").split(" ")
+);
+
+function normalizar(t = "") {
+  return String(t).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9ñ\s]/g, " ").replace(/\s+/g, " ").trim();
+}
+
+// Stemmer ligero para español: quita sufijos verbales y nominales frecuentes
+// ("robando", "robaron", "robo" → "rob") y unifica qu/c y gu/g ("choque" ~ "chocó").
+const SUFIJOS = [
+  "amientos", "imientos", "amiento", "imiento", "aciones", "uciones", "acion", "ucion",
+  "ando", "iendo", "aron", "ieron", "aban", "aste", "iste", "ados", "adas", "idos", "idas",
+  "ado", "ada", "ido", "ida", "aba", "ar", "er", "ir", "as", "es", "an", "en", "os", "a", "o", "e", "s",
+];
+function raiz(palabra) {
+  let p = palabra.replace(/qu/g, "c").replace(/gu(?=[ei])/g, "g");
+  for (let vuelta = 0; vuelta < 2; vuelta++) {
+    const s = SUFIJOS.find((x) => p.endsWith(x) && p.length - x.length >= 3);
+    if (!s) break;
+    p = p.slice(0, -s.length);
+  }
+  return p.slice(0, 6);
+}
+
+function tokenizar(texto) {
+  const palabras = normalizar(texto).split(" ").filter(Boolean);
+  const tokens = [];
+  for (let i = 0; i < palabras.length; i++) {
+    const p = palabras[i];
+    if (p === "no" && palabras[i + 1]) tokens.push("no_" + raiz(palabras[i + 1])); // negaciones: "no respira"
+    if (!PALABRAS_VACIAS.has(p) && p.length > 1) tokens.push(raiz(p));
+  }
+  return tokens;
+}
+
+function contiene(textoNormalizado, clave) {
+  const c = normalizar(clave).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp("(^|[^a-z])" + c).test(textoNormalizado);
+}
+
+// ---------------------------------------------------------------------------
+//  Clasificador Naive Bayes multinomial (se entrena al cargar el módulo)
+// ---------------------------------------------------------------------------
+function entrenar() {
+  const modelo = { clases: {}, vocabulario: new Set(), totalDocs: 0 };
+  for (const [nombre, c] of Object.entries(CLASES)) {
+    const conteo = {};
+    let total = 0;
+    // Los ejemplos y las palabras clave son los datos de entrenamiento
+    const docs = [...c.ejemplos, ...c.claves];
+    for (const doc of docs) {
+      for (const tok of tokenizar(doc)) {
+        conteo[tok] = (conteo[tok] || 0) + 1;
+        total++;
+        modelo.vocabulario.add(tok);
+      }
+    }
+    modelo.clases[nombre] = { conteo, total, docs: docs.length };
+    modelo.totalDocs += docs.length;
+  }
+  return modelo;
+}
+const MODELO = entrenar();
+
+function clasificarNB(texto) {
+  const tokens = tokenizar(texto);
+  const V = MODELO.vocabulario.size;
+  const puntajes = {};
+  for (const [nombre, c] of Object.entries(MODELO.clases)) {
+    let lp = Math.log(c.docs / MODELO.totalDocs);
+    for (const t of tokens) lp += Math.log(((c.conteo[t] || 0) + 1) / (c.total + V)); // suavizado de Laplace
+    puntajes[nombre] = lp;
+  }
+  const conocidos = tokens.filter((t) => MODELO.vocabulario.has(t)).length;
+  return { puntajes, conocidos, tokens };
+}
+
+// ---------------------------------------------------------------------------
+//  Análisis completo (Naive Bayes + sistema experto)
+// ---------------------------------------------------------------------------
+function analizarEmergencia({ descripcion = "", rol = "afectado", edad, perfil } = {}) {
+  const texto = normalizar(descripcion);
+  const quien = rol === "observador" ? "observador" : "afectado";
+  const { puntajes, conocidos } = clasificarNB(descripcion);
+
+  // Combinar probabilidad del modelo con evidencia de palabras clave (sistema experto)
+  const combinados = {};
+  for (const [nombre, c] of Object.entries(CLASES)) {
+    const aciertos = c.claves.filter((k) => contiene(texto, k)).length;
+    combinados[nombre] = puntajes[nombre] + aciertos * 3;
+  }
+  const orden = Object.entries(combinados).sort((a, b) => b[1] - a[1]);
+  const max = orden[0][1];
+  const exp = orden.map(([n, v]) => [n, Math.exp(v - max)]);
+  const suma = exp.reduce((s, [, v]) => s + v, 0);
+  const confianza = exp[0][1] / suma;
+  const ganadora = orden[0][0];
+
+  // Si el texto no tiene palabras conocidas o la confianza es muy baja: emergencia genérica
+  const hayClaves = CLASES[ganadora].claves.some((k) => contiene(texto, k));
+  let clase = conocidos === 0 || (confianza < 0.2 && !hayClaves) ? GENERICO : CLASES[ganadora];
+  // Regla del sistema experto con prioridad sobre el clasificador
+  const noRespira = ["no respira", "dejo de respirar", "sin respirar"].some((k) => contiene(texto, k));
+  const inconsciente = ["desmay", "inconsciente", "no responde", "no reacciona", "se desplomo", "cayo al piso", "yeyo"].some((k) => contiene(texto, k));
+  const cardiaco = clase === CLASES.cardiaca || ["pecho", "infarto", "corazon"].some((k) => contiene(texto, k));
+  if (noRespira && (inconsciente || cardiaco)) clase = PARO;
+
+  // --- Severidad ---
+  let severidad = clase.severidad;
+  const factores = [];
+  if (SENALES_CRITICAS.some((s) => contiene(texto, s))) {
+    severidad = "critica";
+    factores.push("indicadores de riesgo vital en la descripción");
+  }
+  const e = Number(edad || perfil?.edad);
+  if (e && (e >= 60 || e <= 12) && severidad !== "critica") {
+    severidad = NIVELES[Math.min(NIVELES.indexOf(severidad) + 1, 3)];
+    factores.push(`persona vulnerable por edad (${e} años)`);
+  }
+
+  // --- Recomendaciones personalizadas con la ficha médica (solo si es el afectado) ---
+  const recomendaciones = [...clase.recomendaciones[quien]];
+  if (quien === "afectado" && perfil) {
+    const cond = normalizar(perfil.condiciones);
+    const alerg = normalizar(perfil.alergias);
+    if (/asma/.test(cond) && clase === CLASES.respiratoria)
+      recomendaciones.unshift("Tienes asma registrada: usa tu inhalador de rescate ahora.");
+    if (/diabet/.test(cond) && (clase === CLASES.inconsciencia || clase === CLASES.malestar))
+      recomendaciones.unshift("Tienes diabetes registrada: si puedes tragar, toma algo con azúcar (jugo o caramelo).");
+    if (/(cardi|corazon|hipertens)/.test(cond) && clase === CLASES.cardiaca) {
+      severidad = "critica";
+      factores.push("antecedente cardíaco o de hipertensión registrado");
+    }
+    if (/epilep/.test(cond) && clase === CLASES.inconsciencia)
+      recomendaciones.push("Tienes epilepsia registrada: los bomberos ya conocen tu condición.");
+    if (alerg && clase === CLASES.alergia) {
+      severidad = "critica";
+      factores.push(`alergia registrada: ${perfil.alergias}`);
+    }
+  }
+
+  return {
+    categoria: clase.categoria,
+    subtipo: clase.subtipo,
+    severidad,
+    prioridad: PRIORIDAD[severidad],
+    resumen: `${clase.subtipo} reportada por ${quien}${e ? ` (${e} años)` : ""}.${factores.length ? " Factores: " + factores.join("; ") + "." : ""}`,
+    recomendaciones: recomendaciones.slice(0, 5),
+    recursos: clase.recursos,
+    confianza: Math.round(confianza * 100),
+    fuente: "dispositivo",
+    modelo: `IA en el dispositivo v${VERSION} (Naive Bayes + sistema experto)`,
+  };
+}
+
+// Alerta SOS: protocolo de máxima prioridad, con la ficha registrada si existe
+function analisisSOS(perfil) {
+  const ficha = perfil
+    ? [
+        `Persona registrada: ${perfil.nombre}${perfil.edad ? `, ${perfil.edad} años` : ""}`,
+        perfil.sangre && perfil.sangre !== "No sé" ? `sangre ${perfil.sangre}` : "",
+        perfil.condiciones ? `condiciones: ${perfil.condiciones}` : "",
+        perfil.alergias ? `alergias: ${perfil.alergias}` : "",
+        perfil.medicamentos ? `medicamentos: ${perfil.medicamentos}` : "",
+      ].filter(Boolean).join("; ") + "."
+    : "Sin perfil registrado.";
+  return {
+    categoria: "otro",
+    subtipo: "ALERTA SOS · ALTA PRIORIDAD",
+    severidad: "critica",
+    prioridad: 5,
+    resumen: `Alerta SOS de alta prioridad (riesgo inminente para la vida). Acudir de inmediato a la ubicación GPS. ${ficha}`,
+    recomendaciones: [
+      "La ayuda va en camino: los Bomberos Universitarios tienen tu ubicación.",
+      "Si puedes, muévete a un lugar seguro y visible.",
+      "Mantén el teléfono contigo y con la pantalla encendida.",
+      "Si puedes escribir, usa el chat para decir qué ocurre.",
+    ],
+    recursos: ["Unidad de primera respuesta", "Paramédicos", "Seguridad universitaria"],
+    fuente: "protocolo",
+    modelo: "Protocolo SOS",
+  };
+}
+
+module.exports = { analizarEmergencia, analisisSOS, tokenizar, clasificarNB, CLASES, VERSION };
+
+  return module.exports;
+})();
+
+/* ======================= Búsqueda del afectado (buscar-afectado.js, idéntico al del servidor) ======================= */
+const { buscarAfectado } = (() => {
+  const module = { exports: {} };
+// ============================================================================
+//  Búsqueda del afectado en la base de perfiles registrados.
+//
+//  Cuando un OBSERVADOR conoce a la persona afectada (por ejemplo, alguien que
+//  se desmayó y no puede hablar), da su nombre, su edad y, si la sabe, su
+//  cédula. Con eso se busca si esa persona se registró en SOS USM para que los
+//  Bomberos Universitarios reciban su ficha médica.
+//
+//  Criterios (de más a menos confiable):
+//   1. Cédula exacta                          → coincidencia "alta"
+//   2. Nombre y apellido + edad (± 1 año)     → coincidencia "media" (verificar)
+//  Si hay varias personas que coinciden, NO se adjunta ninguna ficha: es
+//  preferible no enviar datos médicos que enviar los de la persona equivocada.
+// ============================================================================
+
+const normalizar = (t = "") =>
+  String(t).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9ñ\s]/g, " ").replace(/\s+/g, " ").trim();
+const soloDigitos = (c = "") => String(c).replace(/\D/g, "");
+
+/**
+ * @param {Array} perfiles  Lista de perfiles registrados
+ * @param {{nombre?: string, edad?: number|string, cedula?: string}} datos  Datos que dio el observador
+ * @returns {{estado: "encontrado"|"no_encontrado"|"ambiguo"|"insuficiente", nivel?: string, criterio?: string, perfil?: object, total?: number}}
+ */
+function buscarAfectado(perfiles, { nombre, edad, cedula } = {}) {
+  const ced = soloDigitos(cedula);
+  if (ced.length >= 6) {
+    const p = perfiles.find((x) => soloDigitos(x.cedula) === ced);
+    if (p) return { estado: "encontrado", nivel: "alta", criterio: "cédula", perfil: p };
+  }
+
+  const palabras = normalizar(nombre).split(" ").filter((t) => t.length > 1);
+  const e = Number(edad);
+  // Con un solo nombre ("Carlos") o sin edad hay demasiado riesgo de confundir personas
+  if (palabras.length < 2 || !e) return { estado: ced.length >= 6 ? "no_encontrado" : "insuficiente" };
+
+  const candidatos = perfiles.filter((x) => {
+    const registrado = normalizar(x.nombre).split(" ");
+    const nombreCoincide = palabras.every((t) => registrado.includes(t)); // "Luis Ramírez" ⊂ "Luis Alberto Ramírez"
+    const edadCoincide = Number(x.edad) > 0 && Math.abs(Number(x.edad) - e) <= 1;
+    return nombreCoincide && edadCoincide;
+  });
+  if (candidatos.length === 1) return { estado: "encontrado", nivel: "media", criterio: "nombre y edad", perfil: candidatos[0] };
+  if (candidatos.length > 1) return { estado: "ambiguo", total: candidatos.length };
+  return { estado: "no_encontrado" };
+}
+
+module.exports = { buscarAfectado, normalizar };
+
+  return module.exports;
+})();
+
+/* ======================= Campus simulado ======================= */
+const EDIFICIOS = [
+  { n: "Edificio A · Ingeniería", x: 60, y: 50, w: 150, h: 70 },
+  { n: "Edificio B · Derecho", x: 240, y: 40, w: 130, h: 80 },
+  { n: "Laboratorios", x: 400, y: 50, w: 140, h: 70 },
+  { n: "Biblioteca", x: 60, y: 170, w: 110, h: 90 },
+  { n: "Auditorio", x: 200, y: 165, w: 120, h: 75 },
+  { n: "Cafetería", x: 350, y: 170, w: 90, h: 60 },
+  { n: "Farmacia · Odontología", x: 460, y: 160, w: 100, h: 90 },
+  { n: "Estacionamiento", x: 60, y: 295, w: 260, h: 55, gris: true },
+  { n: "Bomberos USM", x: 360, y: 290, w: 120, h: 60, bomberos: true },
+];
+const BASE = { lat: 10.4806, lng: -66.8040 };
+const aGeo = (p) => ({ lat: +(BASE.lat + (190 - p.y) * 0.0000045).toFixed(5), lng: +(BASE.lng + (p.x - 300) * 0.0000045).toFixed(5) });
+const dondeEsta = (p) => (EDIFICIOS.find((e) => p.x >= e.x - 12 && p.x <= e.x + e.w + 12 && p.y >= e.y - 12 && p.y <= e.y + e.h + 12) || { n: "Áreas comunes" }).n;
+
+function planoSVG({ incidentes = [], usuarios = [], yo = null, sel = null, compacto = false }) {
+  const c = compacto
+    ? { suelo: "#eef4ff", via: "#ffffff", ed: "#dce7ff", borde: "#bccdf2", txt: "#5b6b8a", verde: "#dff2e6" }
+    : { suelo: "#12204a", via: "#1a2c60", ed: "#1f3570", borde: "#2f4a92", txt: "#9aaad0", verde: "#15334a" };
+  let s = `<svg viewBox="0 0 600 380" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Plano del campus">`;
+  s += `<rect width="600" height="380" fill="${c.suelo}"/>`;
+  s += `<rect x="20" y="135" width="560" height="22" fill="${c.via}"/><rect x="330" y="20" width="18" height="250" fill="${c.via}"/><rect x="20" y="270" width="560" height="14" fill="${c.via}"/>`;
+  s += `<circle cx="190" cy="140" r="18" fill="${c.verde}"/><circle cx="455" cy="270" r="14" fill="${c.verde}"/>`;
+  for (const e of EDIFICIOS) {
+    const fill = e.bomberos ? (compacto ? "#fde8ea" : "#3a1a35") : e.gris ? c.via : c.ed;
+    s += `<rect x="${e.x}" y="${e.y}" width="${e.w}" height="${e.h}" rx="7" fill="${fill}" stroke="${e.bomberos ? "#d92d3a" : c.borde}" stroke-width="1.5"/>`;
+    if (!compacto) s += `<text x="${e.x + e.w / 2}" y="${e.y + e.h / 2 + 4}" text-anchor="middle" font-family="Plus Jakarta Sans, sans-serif" font-size="11" font-weight="600" fill="${e.bomberos ? "#ff7b86" : c.txt}">${e.n}</text>`;
+  }
+  for (const u of usuarios) s += `<circle cx="${u.x}" cy="${u.y}" r="6" fill="#7aa2ff" fill-opacity=".7" stroke="#7aa2ff" stroke-width="2"/>`;
+  const color = { 5: "#d92d3a", 4: "#f97316", 3: "#f5a524", 2: "#0f9d58", 1: "#0f9d58" };
+  for (const i of incidentes) {
+    const p = i.pos, col = i.estado === "resuelto" ? "#6b7280" : color[i.analisis?.prioridad || 3];
+    if (i.recorrido && i.id === sel && i.recorrido.length > 1)
+      s += `<polyline points="${i.recorrido.map((q) => q.x + "," + q.y).join(" ")}" fill="none" stroke="#7aa2ff" stroke-width="2.5" stroke-dasharray="4 5"/>`;
+    if (i.tipo === "panico" && i.estado !== "resuelto")
+      s += `<circle cx="${p.x}" cy="${p.y}" r="10" fill="none" stroke="#d92d3a" stroke-width="3"><animate attributeName="r" from="10" to="34" dur="1.2s" repeatCount="indefinite"/><animate attributeName="opacity" from="1" to="0" dur="1.2s" repeatCount="indefinite"/></circle>`;
+    s += `<g data-inc="${i.id}" style="cursor:pointer"><circle cx="${p.x}" cy="${p.y}" r="${i.id === sel ? 13 : 11}" fill="${col}" stroke="#fff" stroke-width="3"/></g>`;
+  }
+  if (yo) s += `<circle cx="${yo.x}" cy="${yo.y}" r="30" fill="#1554d1" fill-opacity=".14"/><circle cx="${yo.x}" cy="${yo.y}" r="11" fill="#1554d1" stroke="#fff" stroke-width="4"/>`;
+  return s + "</svg>";
+}
+
+
+/* ======================= Utilidades ======================= */
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const hora = (ts) => new Date(ts).toLocaleTimeString("es-VE", { hour: "2-digit", minute: "2-digit" });
+const hace = (ts) => { const s = Math.round((Date.now() - ts) / 1000); return s < 60 ? `hace ${s}s` : s < 3600 ? `hace ${Math.floor(s / 60)} min` : `hace ${Math.floor(s / 3600)} h`; };
+const TEXTO_ESTADO = {
+  recibido: "Los Bomberos Universitarios recibieron tu alerta.",
+  en_camino: "Una unidad va en camino hacia tu ubicación.",
+  en_sitio: "La unidad llegó al sitio.",
+  resuelto: "La emergencia fue marcada como atendida. ¡Gracias por reportar!",
+};
+const NOMBRE_ESTADO = { nuevo: "Nuevo", recibido: "Recibido", en_camino: "En camino", en_sitio: "En sitio", resuelto: "Resuelto", pendiente: "Pendiente" };
+const CATEG = { incendio: "Incendio", medica: "Médica", trauma: "Trauma", fuga_gas_quimico: "Gas / químico", estructural: "Estructural", electrica: "Eléctrica", seguridad: "Seguridad", otro: "Otro" };
+const TIPO_USUARIO = { estudiante: "Estudiante", profesor: "Profesor", administrativo: "Personal administrativo", seguridad: "Seguridad", limpieza: "Limpieza y mantenimiento" };
+const SANGRE = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-", "No sé"];
+
+/* ======================= Estado de la simulación ======================= */
+let S, secuencia = 0;
+const nuevoId = () => "EMG-" + (Date.now().toString(36).slice(-5) + (++secuencia)).toUpperCase();
+const PERFIL_VACIO = { registrado: false };
+
+// Personas que ya se registraron en SOS USM (base de datos simulada del servidor)
+const PERFILES_BD = [
+  { tipoUsuario: "estudiante", nombre: "Carlos Andrés Mendoza", cedula: "V-27888999", edad: 21, telefono: "0424-3332211", carrera: "Ingeniería Civil",
+    sangre: "A+", condiciones: "Epilepsia", alergias: "Ibuprofeno", medicamentos: "Levetiracetam", contactoNombre: "Rosa Mendoza", contactoParentesco: "Madre", contactoTelefono: "0414-9998877" },
+  { tipoUsuario: "estudiante", nombre: "María José Pérez", cedula: "V-30111222", edad: 20, telefono: "0412-1112233", carrera: "Derecho",
+    sangre: "O-", condiciones: "Asma", alergias: "", medicamentos: "Salbutamol (inhalador)", contactoNombre: "Pedro Pérez", contactoParentesco: "Padre", contactoTelefono: "0416-5554433" },
+];
+// Búsqueda del afectado: se hace en el "servidor", cuando la alerta llega a la central
+function asignarAfectado(inc) {
+  const af = inc.afectadoReportado;
+  if (!af) return;
+  inc.afectado = af;
+  if (!af.conocido) return;
+  const base = [...PERFILES_BD, ...(S.perfil.registrado ? [S.perfil] : [])];
+  const r = buscarAfectado(base, af);
+  inc.coincidencia = { estado: r.estado, nivel: r.nivel, total: r.total };
+  inc.perfilAfectado = r.perfil || null;
+}
+
+function estadoInicial() {
+  const t0 = Date.now() - 42 * 60000;
+  const d = "Me corté la mano con un vidrio en el laboratorio, está sangrando";
+  return {
+    yo: null,
+    sinSenal: false,
+    perfil: { ...PERFIL_VACIO },
+    otros: [{ x: 78, y: 248 }, { x: 222, y: 228 }, { x: 362, y: 218 }, { x: 255, y: 108 }],
+    incidentes: [{
+      id: "EMG-K7Q2A1", tipo: "reporte", estado: "resuelto", creadoEn: t0, asignado: "Unidad B-2",
+      reportante: { nombre: "José Rodríguez", edad: 19, rol: "afectado", tipoUsuario: "estudiante" }, perfil: null,
+      descripcion: d, pos: { x: 470, y: 85 }, recorrido: [{ x: 470, y: 85 }],
+      analisis: { ...analizarEmergencia({ descripcion: d, rol: "afectado", edad: 19 }), ts: t0 },
+      mensajes: [
+        { id: "m1", de: "sistema", texto: "Reporte recibido. La IA analizó la emergencia y los Bomberos Universitarios fueron notificados.", ts: t0 },
+        { id: "m2", de: "bomberos", texto: "Recibido, vamos en camino.", ts: t0 + 40000 },
+        { id: "m3", de: "sistema", texto: TEXTO_ESTADO.resuelto, ts: t0 + 9 * 60000 },
+      ],
+    }],
+    miIncidente: null,
+    sel: "EMG-K7Q2A1",
+    vista: "permiso",
+  };
+}
+const visibleEnCentral = (i) => !i.pendiente;
+const msgSistema = (inc, texto) => inc.mensajes.push({ id: String(Math.random()), de: "sistema", texto, ts: Date.now() });
+
+/* ======================= "Servidor" simulado ======================= */
+function crearIncidente(datos) {
+  const inc = { id: nuevoId(), estado: "nuevo", creadoEn: Date.now(), asignado: null, mensajes: [], pos: { ...S.yo }, recorrido: [{ ...S.yo }],
+    perfil: S.perfil.registrado ? { ...S.perfil } : null, ...datos };
+  if (S.sinSenal) {
+    // Sin conexión: la alerta queda en el teléfono, en cola, con la recomendación calculada localmente
+    inc.estado = "pendiente";
+    inc.pendiente = true;
+  }
+  S.incidentes.unshift(inc);
+  return inc;
+}
+function llegaACentral(inc) {
+  asignarAfectado(inc);
+  if (inc.analisis.prioridad >= 4 || inc.tipo === "panico") alarma(); else pitido();
+  S.sel = inc.id;
+}
+function reportar(d) {
+  // La IA corre en el teléfono: la recomendación es inmediata, haya o no señal
+  // La edad que importa es la del afectado; los datos del observador no se usan como si fuera el afectado
+  const edadAfectado = d.rol === "afectado" ? d.edad : d.afectado?.edad;
+  const analisis = { ...analizarEmergencia({ descripcion: d.descripcion, rol: d.rol, edad: edadAfectado, perfil: S.perfil.registrado && d.rol === "afectado" ? S.perfil : undefined }), ts: Date.now() };
+  const inc = crearIncidente({ tipo: "reporte", reportante: { nombre: d.nombre, edad: d.edad ? +d.edad : null, rol: d.rol, tipoUsuario: d.tipoUsuario }, descripcion: d.descripcion, analisis, afectadoReportado: d.afectado || null });
+  if (inc.pendiente) msgSistema(inc, "Sin conexión con la central. Sigue las recomendaciones de la IA; tu reporte se enviará automáticamente en cuanto vuelva la señal.");
+  else { msgSistema(inc, "Reporte recibido. La IA analizó la emergencia y los Bomberos Universitarios fueron notificados."); llegaACentral(inc); }
+  return inc;
+}
+function sosAlerta() {
+  const inc = crearIncidente({ tipo: "panico", reportante: null, descripcion: "", analisis: { ...analisisSOS(S.perfil.registrado ? S.perfil : null), ts: Date.now() } });
+  if (inc.pendiente) msgSistema(inc, "Sin conexión con la central. Tu alerta SOS se enviará automáticamente en cuanto vuelva la señal. Si puedes, llama o envía un SMS a los Bomberos Universitarios.");
+  else { msgSistema(inc, inc.perfil ? "Alerta SOS enviada con máxima prioridad. Los Bomberos Universitarios tienen tu ubicación y tu ficha registrada." : "Alerta SOS enviada con máxima prioridad. Los Bomberos Universitarios tienen tu ubicación."); llegaACentral(inc); }
+  return inc;
+}
+// Al volver la señal, la cola se envía sola
+function enviarCola() {
+  for (const inc of S.incidentes.filter((i) => i.pendiente)) {
+    inc.pendiente = false;
+    inc.estado = "nuevo";
+    msgSistema(inc, "Conexión recuperada: tu alerta llegó a la central.");
+    llegaACentral(inc);
+  }
+}
+function cambiarEstado(id, estado, unidad) {
+  const inc = S.incidentes.find((i) => i.id === id);
+  if (!inc) return;
+  inc.estado = estado;
+  if (unidad) inc.asignado = unidad;
+  msgSistema(inc, TEXTO_ESTADO[estado]);
+  render();
+}
+function chat(id, de, texto) {
+  const inc = S.incidentes.find((i) => i.id === id);
+  if (!inc || !texto.trim()) return;
+  inc.mensajes.push({ id: String(Math.random()), de, texto: texto.trim(), ts: Date.now() });
+  if (de === "bomberos" && inc.estado === "nuevo") inc.estado = "recibido";
+  if (de === "usuario" && !inc.pendiente) pitido();
+  render();
+}
+
+/* ======================= Teléfono: navegación ======================= */
+const VISTAS = ["permiso", "elegir", "registro", "inicio", "alta", "form", "inc"];
+function ir(v) {
+  S.vista = v;
+  for (const id of VISTAS) $("#v-" + id).hidden = id !== v;
+  $("#v-" + v).scrollTop = 0;
+  if (v === "alta") { $("#acepto").checked = false; actualizarSOS(); }
+  render();
+}
+document.querySelectorAll("[data-ir]").forEach((b) => b.addEventListener("click", () => ir(b.dataset.ir)));
+$("#btn-normal").addEventListener("click", () => ir("form"));
+$("#btn-alta").addEventListener("click", () => ir("alta"));
+$("#btn-volver").addEventListener("click", () => ir("inc"));
+$("#btn-cerrar").addEventListener("click", () => { S.miIncidente = null; ir("inicio"); });
+$("#btn-permitir").addEventListener("click", () => {
+  desbloquearAudio();
+  if (!S.yo) S.yo = { x: 255, y: 205 };
+  // Después del permiso: si no está registrada, se le ofrece registrarse ahora o más tarde
+  ir(S.perfil.registrado ? "inicio" : "elegir");
+});
+$("#btn-reg-ahora").addEventListener("click", () => abrirRegistro(false));
+$("#btn-reg-luego").addEventListener("click", () => ir("inicio"));
+
+let tToast;
+function toast(html, ms = 4200) {
+  const t = $("#t-toast");
+  t.innerHTML = html;
+  t.hidden = false;
+  clearTimeout(tToast);
+  tToast = setTimeout(() => { t.hidden = true; }, ms);
+}
+
+function moverYo(p) {
+  S.yo = { x: Math.max(30, Math.min(570, p.x)), y: Math.max(30, Math.min(350, p.y)) };
+  const inc = S.incidentes.find((i) => i.id === S.miIncidente);
+  if (inc && inc.estado !== "resuelto") { inc.pos = { ...S.yo }; inc.recorrido.push({ ...S.yo }); }
+}
+setInterval(() => { if (S?.yo) { moverYo({ x: S.yo.x + (Math.random() - .5) * 6, y: S.yo.y + (Math.random() - .5) * 6 }); renderCentral(); } }, 4000);
+
+/* ======================= Registro ======================= */
+$("#r-sangre").innerHTML = SANGRE.map((t, i) => `<label><input type="radio" name="rSangre" id="rs-${i}" value="${t}"><span>${t}</span></label>`).join("");
+let editandoRegistro = false;
+function abrirRegistro(editar) {
+  editandoRegistro = editar;
+  $("#reg-atras").hidden = !editar;
+  $("#reg-logo").hidden = editar;
+  $("#reg-titulo").textContent = editar ? "Mi registro" : "Registro";
+  $("#reg-luego").hidden = editar;
+  $("#reg-error").hidden = true;
+  const p = S.perfil;
+  if (p.registrado) {
+    $(`[name=rTipo][value="${p.tipoUsuario}"]`).checked = true;
+    $("#r-nombre").value = p.nombre; $("#r-cedula").value = p.cedula; $("#r-edad").value = p.edad || "";
+    $("#r-tel").value = p.telefono; $("#r-carrera").value = p.carrera || "";
+    document.querySelectorAll("[name=rSangre]").forEach((x) => { x.checked = x.value === p.sangre; });
+    $("#r-cond").value = p.condiciones || ""; $("#r-alerg").value = p.alergias || ""; $("#r-med").value = p.medicamentos || "";
+    $("#r-cnombre").value = p.contactoNombre || ""; $("#r-cparent").value = p.contactoParentesco || ""; $("#r-ctel").value = p.contactoTelefono || "";
+    $("#r-consent").checked = true;
+  }
+  ir("registro");
+}
+$("#reg-atras").addEventListener("click", () => ir("inicio"));
+$("#reg-luego").addEventListener("click", () => ir("inicio"));
+$("#btn-mi-registro").addEventListener("click", () => abrirRegistro(true));
+$("#inicio-sinreg").addEventListener("click", () => abrirRegistro(true));
+$("#form-sinreg").addEventListener("click", () => abrirRegistro(true));
+$("#form-registro").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const v = (id) => $(id).value.trim();
+  const err = $("#reg-error");
+  if (!v("#r-nombre") || !v("#r-cedula") || !v("#r-tel")) { err.textContent = "Completa los campos obligatorios: nombre, cédula y teléfono."; err.hidden = false; return; }
+  if (!$("#r-consent").checked) { err.textContent = "Debes autorizar el uso de tus datos para que los bomberos puedan recibirlos."; err.hidden = false; return; }
+  S.perfil = {
+    registrado: true,
+    tipoUsuario: $("[name=rTipo]:checked").value,
+    nombre: v("#r-nombre"), cedula: v("#r-cedula").toUpperCase(), edad: v("#r-edad"), telefono: v("#r-tel"), carrera: v("#r-carrera"),
+    sangre: $("[name=rSangre]:checked")?.value || "",
+    condiciones: v("#r-cond"), alergias: v("#r-alerg"), medicamentos: v("#r-med"),
+    contactoNombre: v("#r-cnombre"), contactoParentesco: v("#r-cparent"), contactoTelefono: v("#r-ctel"),
+  };
+  ir("inicio");
+  toast(S.sinSenal ? "Registro guardado en el teléfono. Se enviará al servidor cuando vuelva la señal." : "Registro guardado. Si envías una alerta SOS, los bomberos recibirán tu ficha.");
+});
+function llenarRegistroEjemplo() {
+  if (S.vista !== "registro") abrirRegistro(!["permiso", "elegir"].includes(S.vista));
+  if (!S.yo) S.yo = { x: 255, y: 205 };
+  $("#r-pro").checked = true;
+  $("#r-nombre").value = "Luis Ramírez"; $("#r-cedula").value = "V-15234876"; $("#r-edad").value = "52";
+  $("#r-tel").value = "0414-5551234"; $("#r-carrera").value = "Facultad de Ingeniería";
+  $("#rs-6").checked = true;
+  $("#r-cond").value = "Hipertensión, diabetes tipo 2"; $("#r-alerg").value = "Penicilina"; $("#r-med").value = "Losartán, metformina";
+  $("#r-cnombre").value = "Ana Ramírez"; $("#r-cparent").value = "Esposa"; $("#r-ctel").value = "0412-5559876";
+  $("#r-consent").checked = true;
+  $("#reg-error").hidden = true;
+}
+$("#btn-ejemplo-reg").addEventListener("click", llenarRegistroEjemplo);
+
+/* ======================= Reporte normal ======================= */
+document.querySelectorAll(".sugerencias button").forEach((b) => b.addEventListener("click", () => { const t = $("#f-desc"); t.value = b.dataset.txt + t.value; t.focus(); }));
+$("#formulario").addEventListener("submit", (e) => {
+  e.preventDefault();
+  desbloquearAudio();
+  const f = e.target, err = $("#form-error");
+  const p = S.perfil;
+  // Registrada: solo se pide quién necesita ayuda y qué pasó
+  const persona = p.registrado
+    ? { tipoUsuario: p.tipoUsuario, nombre: p.nombre, edad: p.edad }
+    : { tipoUsuario: f.tipoUsuario.value, nombre: f.nombre.value.trim(), edad: f.edad.value };
+  if (!persona.nombre) { err.textContent = "Escribe tu nombre."; err.hidden = false; return; }
+  const rol = f.rol.value;
+  const conoce = $("[name=conoce]:checked")?.value;
+  if (rol === "observador" && !conoce) { err.textContent = "Indica si conoces a la persona afectada."; err.hidden = false; return; }
+  if (rol === "observador" && conoce === "si" && !$("#af-nombre").value.trim()) { err.textContent = "Escribe el nombre de la persona afectada, o marca que no la conoces."; err.hidden = false; return; }
+  if (!f.descripcion.value.trim()) { err.textContent = "Describe brevemente lo que pasó."; err.hidden = false; return; }
+  err.hidden = true;
+  const afectado = rol === "observador"
+    ? conoce === "si" ? { conocido: true, nombre: $("#af-nombre").value.trim(), edad: $("#af-edad").value, cedula: $("#af-cedula").value.trim() } : { conocido: false }
+    : null;
+  const inc = reportar({ ...persona, rol, afectado, descripcion: f.descripcion.value.trim() });
+  S.miIncidente = inc.id;
+  f.descripcion.value = "";
+  ["#af-nombre", "#af-edad", "#af-cedula"].forEach((x) => { $(x).value = ""; });
+  document.querySelectorAll("[name=conoce]").forEach((x) => { x.checked = false; });
+  ir("inc");
+});
+document.querySelectorAll("[name=rol], [name=conoce]").forEach((x) => x.addEventListener("change", () => renderTelefono()));
+
+/* ======================= Alta prioridad (SOS) ======================= */
+const sos = $("#btn-sos");
+function actualizarSOS() {
+  sos.disabled = !$("#acepto").checked;
+  $("#sos-ayuda").textContent = sos.disabled ? "Marca la casilla de confirmación para activar" : "Mantén presionado 3 segundos para enviar la alerta";
+}
+$("#acepto").addEventListener("change", actualizarSOS);
+let tSOS;
+sos.addEventListener("pointerdown", (e) => { if (sos.disabled) return; e.preventDefault(); desbloquearAudio(); sos.classList.add("presionando"); $("#sos-ayuda").textContent = "Sigue presionando…"; tSOS = setTimeout(enviarSOS, 3000); });
+["pointerup", "pointerleave", "pointercancel"].forEach((ev) => sos.addEventListener(ev, () => { if (!sos.classList.contains("presionando")) return; clearTimeout(tSOS); sos.classList.remove("presionando"); actualizarSOS(); }));
+sos.addEventListener("contextmenu", (e) => e.preventDefault());
+sos.addEventListener("keydown", (e) => { if ((e.key === "Enter" || e.key === " ") && !sos.disabled) { e.preventDefault(); enviarSOS(); } });
+function enviarSOS() {
+  sos.classList.remove("presionando");
+  const inc = sosAlerta();
+  S.miIncidente = inc.id;
+  $("#overlay-t").textContent = inc.pendiente ? "Alerta SOS guardada" : "Alerta SOS enviada";
+  $("#overlay-p").textContent = inc.pendiente
+    ? "No hay conexión. Se enviará sola en cuanto vuelva la señal; mientras tanto puedes llamar o enviar un SMS."
+    : "Los Bomberos Universitarios recibieron tu ubicación con máxima prioridad.";
+  $("#overlay").hidden = false;
+  render();
+  setTimeout(() => { $("#overlay").hidden = true; ir("inc"); }, 2000);
+}
+
+/* ======================= Emergencia activa ======================= */
+$("#t-chat-form").addEventListener("submit", (e) => { e.preventDefault(); chat(S.miIncidente, "usuario", $("#t-chat-in").value); $("#t-chat-in").value = ""; });
+$("#btn-reintentar").addEventListener("click", () => {
+  if (S.sinSenal) toast("Todavía no hay señal. La app lo vuelve a intentar sola cada 10 segundos.");
+});
+$("#btn-llamar").addEventListener("click", () => toast("En el teléfono real se abriría la llamada a <b>0212-000-0000</b> (número de ejemplo que se configura en la app)."));
+$("#btn-sms").addEventListener("click", () => {
+  const p = S.perfil, g = aGeo(S.yo || { x: 255, y: 205 });
+  const inc = S.incidentes.find((i) => i.id === S.miIncidente);
+  const cuerpo = `SOS USM: ${inc?.tipo === "panico" ? "ALERTA DE ALTA PRIORIDAD" : "emergencia"}. ${p.registrado ? `${p.nombre}, C.I. ${p.cedula}${p.sangre && p.sangre !== "No sé" ? `, sangre ${p.sangre}` : ""}. ` : ""}Ubicación: https://maps.google.com/?q=${g.lat},${g.lng}`;
+  toast(`En el teléfono real se abriría un SMS a la central con este texto:<br><code>${esc(cuerpo)}</code>`, 7000);
+});
+
+/* ======================= Señal (simulación) ======================= */
+$("#btn-senal").addEventListener("click", () => {
+  S.sinSenal = !S.sinSenal;
+  if (!S.sinSenal) enviarCola();
+  render();
+});
+
+/* ======================= Render del teléfono ======================= */
+const ORDEN = ["nuevo", "recibido", "en_camino", "en_sitio", "resuelto"];
+const TITULOS = {
+  pendiente: ["Sin conexión con la central", "Tu alerta está guardada y se enviará automáticamente en cuanto vuelva la señal."],
+  nuevo: ["Alerta enviada", "Esperando confirmación de los Bomberos Universitarios…"],
+  recibido: ["Alerta recibida", "Los Bomberos Universitarios están atendiendo tu caso."],
+  en_camino: ["Ayuda en camino", "Una unidad se dirige a tu ubicación."],
+  en_sitio: ["Unidad en el sitio", "Los bomberos llegaron a tu ubicación."],
+  resuelto: ["Emergencia atendida", "El caso fue cerrado por los Bomberos Universitarios."],
+};
+const SEV = { baja: "Baja", moderada: "Moderada", alta: "Alta", critica: "Crítica" };
+
+function renderTelefono() {
+  const p = S.perfil;
+  const sen = $("#btn-senal");
+  sen.textContent = S.sinSenal ? "📵 Sin señal (simulado)" : "📶 Con señal";
+  sen.setAttribute("aria-pressed", String(S.sinSenal));
+
+  // Inicio
+  const pend = S.incidentes.filter((i) => i.pendiente).length;
+  $("#inicio-offline").hidden = !S.sinSenal;
+  $("#inicio-pend").textContent = pend ? ` (${pend} pendiente${pend > 1 ? "s" : ""})` : "";
+  $("#inicio-sinreg").hidden = p.registrado;
+  $("#btn-mi-registro").hidden = !p.registrado;
+  if (S.yo) $("#ubic-texto").textContent = `Ubicación activa · ${dondeEsta(S.yo)}`;
+
+  // Reporte: registrada → solo rol + descripción
+  $("#reportas").hidden = !p.registrado;
+  $("#form-sinreg").hidden = p.registrado;
+  $("#datos-persona").style.display = p.registrado ? "none" : "flex";
+  if (p.registrado) {
+    $("#rep-nombre").textContent = p.nombre;
+    $("#rep-sub").textContent = [TIPO_USUARIO[p.tipoUsuario], p.edad ? `${p.edad} años` : null].filter(Boolean).join(" · ");
+  }
+
+  // Observador: ¿conoce a la persona afectada?
+  const esObs = $("#rol-o").checked;
+  $("#obs-bloque").hidden = !esObs;
+  $("#af-campos").hidden = !(esObs && $("#conoce-si").checked);
+  $("#af-campos").style.display = $("#af-campos").hidden ? "none" : "flex";
+
+  // Alta prioridad: qué datos recibirán los bomberos
+  $("#alta-ficha").innerHTML = p.registrado
+    ? `<div class="ficha-tel"><div class="cab-f"><svg class="i"><use href="#i-escudo"/></svg>Los bomberos recibirán tu registro</div>
+        <p>${esc([p.nombre, p.cedula, p.sangre && p.sangre !== "No sé" ? `Sangre ${p.sangre}` : null, p.condiciones || null].filter(Boolean).join(" · "))}</p>
+        ${p.contactoNombre ? `<small>Contacto de emergencia: ${esc(p.contactoNombre)}${p.contactoTelefono ? ` (${esc(p.contactoTelefono)})` : ""}</small>` : ""}</div>`
+    : `<button class="aviso-caja registro" id="alta-sinreg"><svg class="i"><use href="#i-usuario"/></svg><span>No estás registrado: la alerta llegará <b>sin tus datos</b>. Toca aquí para registrarte.</span></button>`;
+  $("#alta-sinreg")?.addEventListener("click", () => abrirRegistro(true));
+
+  // Emergencia activa
+  const mio = S.incidentes.find((i) => i.id === S.miIncidente);
+  $("#btn-volver").hidden = !mio || mio.estado === "resuelto";
+  if (!mio) return;
+  const pendiente = mio.estado === "pendiente";
+  $("#inc-cod").textContent = mio.tipo === "panico" ? "Alerta SOS" : pendiente ? "Emergencia" : mio.id;
+  $("#inc-chip").className = "chip" + (S.sinSenal ? " sin" : "");
+  $("#inc-chip span").textContent = pendiente ? "Guardada" : S.sinSenal ? "Sin señal" : "En vivo";
+  const [t, d] = TITULOS[mio.estado];
+  $("#estado-t").textContent = t;
+  $("#estado-d").textContent = mio.asignado && !["nuevo", "pendiente"].includes(mio.estado) ? `${d} Unidad: ${mio.asignado}` : d;
+  $("#estado").className = "estado-hero " + (mio.estado === "resuelto" ? "resuelto" : pendiente ? "pendiente" : mio.estado === "nuevo" ? "" : "atendiendo");
+  const idx = ORDEN.indexOf(mio.estado);
+  document.querySelectorAll("#linea li").forEach((li) => li.classList.toggle("hecho", idx >= 0 && ORDEN.indexOf(li.dataset.e) <= idx));
+  $("#btn-reintentar").hidden = !pendiente;
+  $("#contacto").hidden = !(pendiente || (S.sinSenal && mio.estado !== "resuelto"));
+
+  const a = mio.analisis;
+  $("#ia-tipo").textContent = a.subtipo;
+  $("#ia-sev").textContent = SEV[a.severidad]; $("#ia-sev").className = "sev " + a.severidad;
+  $("#ia-recs").innerHTML = a.recomendaciones.map((r) => `<li><span>${esc(r)}</span></li>`).join("");
+  $("#ia-fuente").textContent = a.fuente === "protocolo"
+    ? "Protocolo automático de alerta SOS · funciona sin internet"
+    : `IA en el teléfono · funciona sin internet · confianza ${a.confianza}%`;
+  const c = $("#t-msgs");
+  const antes = c.childElementCount;
+  c.innerHTML = mio.mensajes.map((m) => m.de === "sistema" ? `<div class="msg sistema">${esc(m.texto)}</div>`
+    : `<div class="msg ${m.de}">${m.de === "bomberos" ? "<b>Bomberos USM</b>" : ""}${esc(m.texto)}<small>${hora(m.ts)}</small></div>`).join("");
+  if (c.childElementCount !== antes) c.scrollTop = c.scrollHeight;
+  $("#t-chat-in").placeholder = pendiente ? "Se enviará al recuperar la señal…" : "Escribe un mensaje…";
+  $("#btn-cerrar").hidden = mio.estado !== "resuelto";
+}
+
+/* ======================= Central ======================= */
+const RAPIDAS = ["Recibido, vamos en camino.", "Mantén la calma, ya tenemos tu ubicación.", "¿La persona está consciente y respira?", "¿Hay más personas afectadas?"];
+const ESTADOS = [["recibido", "Acusar recibo"], ["en_camino", "En camino"], ["en_sitio", "En sitio"], ["resuelto", "Resuelto"]];
+const clase = (i) => `p${i.analisis?.prioridad || 3} ${i.tipo === "panico" && i.estado !== "resuelto" ? "sosc" : ""} ${i.estado === "resuelto" ? "resuelto" : ""}`;
+const ordenar = (a, b) => ((a.estado === "resuelto") - (b.estado === "resuelto")) || ((b.analisis?.prioridad || 0) - (a.analisis?.prioridad || 0)) || (b.creadoEn - a.creadoEn);
+
+function renderCentral() {
+  const lista = S.incidentes.filter(visibleEnCentral);
+  const activos = lista.filter((i) => i.estado !== "resuelto");
+  $("#k-act").textContent = activos.length;
+  $("#k-cri").textContent = activos.filter((i) => (i.analisis?.prioridad || 0) >= 5).length;
+  $("#k-usr").textContent = S.otros.length + (S.yo && !S.sinSenal ? 1 : 0);
+  $("#k-tot").textContent = lista.length;
+  $("#banner").hidden = !activos.some((i) => i.tipo === "panico" && i.estado === "nuevo");
+  $("#c-chip").textContent = S.sinSenal ? "● Un usuario perdió la señal" : "● En línea · IA activa";
+  $("#c-chip").className = "c-chip" + (S.sinSenal ? " sin" : "");
+  if (!activos.some((i) => i.estado === "nuevo" && (i.analisis?.prioridad || 0) >= 4)) detenerAlarma();
+
+  $("#c-lista").innerHTML = `<h4>Emergencias</h4>` + [...lista].sort(ordenar).map((i) => {
+    const p = i.analisis?.prioridad || "…";
+    const quien = i.reportante
+      ? i.reportante.rol === "observador"
+        ? i.afectado?.conocido
+          ? `Afectado: ${esc(i.afectado.nombre)}${i.perfilAfectado ? " · ficha encontrada" : ""} · reporta ${esc(i.reportante.nombre)}`
+          : `Afectado desconocido · reporta ${esc(i.reportante.nombre)}`
+        : `${esc(i.reportante.nombre)} · ${TIPO_USUARIO[i.reportante.tipoUsuario]} · afectado`
+      : i.perfil ? `${esc(i.perfil.nombre)} · ficha registrada` : "Sin datos (alerta SOS)";
+    return `<button class="item ${clase(i)} ${i.id === S.sel ? "sel" : ""}" data-id="${i.id}">
+      <div class="fila"><span class="tipo">${i.tipo === "panico" ? "ALERTA SOS" : esc(i.analisis?.subtipo)}</span><span class="prio p${p}">P${p}</span></div>
+      <div class="meta">${quien}</div>
+      <div class="fila meta"><span>${NOMBRE_ESTADO[i.estado]}</span><span>${i.estado === "nuevo" ? '<span class="badge">SIN ATENDER</span> ' : ""}${hace(i.creadoEn)}</span></div>
+    </button>`;
+  }).join("");
+
+  const mapa = $("#c-mapa");
+  mapa.querySelector("svg")?.remove();
+  mapa.insertAdjacentHTML("afterbegin", planoSVG({
+    incidentes: lista.filter((i) => i.estado !== "resuelto" || i.id === S.sel),
+    usuarios: S.yo && !S.sinSenal ? [...S.otros, S.yo] : S.otros, sel: S.sel,
+  }));
+  renderDetalle();
+}
+
+function afectadoHTML(inc) {
+  const a = inc.afectado;
+  if (!a) return "";
+  if (!a.conocido) return `<div class="bloque"><h4>Persona afectada</h4><p class="desc">El observador no conoce a la persona afectada.</p></div>`;
+  const c = inc.coincidencia || {};
+  const datos = `<dl class="datos"><dt>Nombre</dt><dd>${esc(a.nombre) || "—"}</dd><dt>Edad</dt><dd>${a.edad || "—"}</dd><dt>Cédula</dt><dd>${esc(a.cedula) || "—"}</dd></dl>`;
+  if (c.estado === "encontrado" && inc.perfilAfectado) {
+    const nota = c.nivel === "alta" ? "✅ Coincidencia por <b>cédula</b> (confianza alta)." : "⚠️ Coincidencia por <b>nombre y edad</b> (confianza media): verificar la identidad en el sitio.";
+    return `<div class="bloque"><h4>Persona afectada (según el observador)</h4>${datos}</div>` + fichaHTML(inc.perfilAfectado, "Ficha registrada del afectado", nota);
+  }
+  const motivo = {
+    ambiguo: `Varias personas registradas coinciden (${c.total}); no se adjuntó ninguna ficha para evitar errores.`,
+    insuficiente: "Datos insuficientes para buscar su registro (se necesita nombre y apellido con edad, o la cédula).",
+    no_encontrado: "No se encontró un registro con esos datos.",
+  }[c.estado] || "";
+  return `<div class="bloque"><h4>Persona afectada (según el observador)</h4>${datos}<p class="desc">${motivo}</p></div>`;
+}
+
+function fichaHTML(p, titulo, nota) {
+  if (!p) return "";
+  const fila = (t, v, alerta) => (v ? `<dt>${t}</dt><dd${alerta ? ' class="alerta-medica"' : ""}>${esc(v)}</dd>` : "");
+  const medica = fila("Sangre", p.sangre && p.sangre !== "No sé" ? p.sangre : "") + fila("Condiciones", p.condiciones, true) + fila("Alergias", p.alergias, true) + fila("Medicamentos", p.medicamentos);
+  return `<div class="bloque ficha">
+    <h4>${titulo}</h4>
+    ${nota ? `<p class="nota-ficha">${nota}</p>` : ""}
+    <dl class="datos">${fila("Nombre", p.nombre)}${fila("Cédula", p.cedula)}${fila("Comunidad", TIPO_USUARIO[p.tipoUsuario])}${fila("Edad", p.edad ? p.edad + " años" : "")}${fila("Área", p.carrera)}${fila("Teléfono", p.telefono)}</dl>
+    <h4>Información médica</h4>
+    ${medica ? `<dl class="datos">${medica}</dl>` : '<p class="desc">No declaró información médica.</p>'}
+    ${p.contactoNombre ? `<h4>Contacto de emergencia</h4><dl class="datos">${fila("Nombre", p.contactoNombre)}${fila("Parentesco", p.contactoParentesco)}${fila("Teléfono", p.contactoTelefono)}</dl>` : ""}
+  </div>`;
+}
+
+function renderDetalle() {
+  const inc = S.incidentes.find((i) => i.id === S.sel && visibleEnCentral(i));
+  const cont = $("#c-det");
+  if (!inc) { cont.innerHTML = ""; return; }
+  const ciPrev = $("#c-chat-in"), uPrev = $("#c-unidad");
+  const borrador = ciPrev?.dataset.inc === inc.id ? ciPrev.value : "";
+  const foco = document.activeElement === ciPrev;
+  const focoU = document.activeElement === uPrev && uPrev?.dataset.inc === inc.id;
+  const unidad = uPrev?.dataset.inc === inc.id ? uPrev.value : inc.asignado || "";
+  const a = inc.analisis, r = inc.reportante, g = aGeo(inc.pos);
+  cont.innerHTML = `<div class="det">
+    <div class="det-tit"><div><h3>${inc.tipo === "panico" ? "ALERTA SOS · ALTA PRIORIDAD" : esc(a.subtipo)}</h3>
+      <span class="cod">${inc.id} · ${hora(inc.creadoEn)} · ${hace(inc.creadoEn)}</span></div><span class="prio p${a.prioridad}">Prioridad ${a.prioridad}</span></div>
+    <div class="bloque">
+      <h4>Estado: ${NOMBRE_ESTADO[inc.estado]}${inc.asignado ? " · " + esc(inc.asignado) : ""}</h4>
+      <div class="estados">${ESTADOS.map(([e, t]) => `<button data-estado="${e}" class="${inc.estado === e ? "activo" : ""} ${e === "resuelto" ? "fin" : ""}">${t}</button>`).join("")}</div>
+      <input class="c-input" id="c-unidad" data-inc="${inc.id}" placeholder="Unidad asignada (ej. Unidad B-1)" value="${esc(unidad)}">
+      <h4>Ubicación en tiempo real</h4>
+      <dl class="datos"><dt>Lugar</dt><dd>${esc(dondeEsta(inc.pos))}</dd><dt>GPS</dt><dd class="mono">${g.lat}, ${g.lng}</dd><dt>Precisión</dt><dd>±6 m</dd></dl>
+    </div>
+    <div class="bloque">
+      <h4>Reportante</h4>
+      ${r ? `<dl class="datos"><dt>Nombre</dt><dd>${esc(r.nombre)}</dd><dt>Comunidad</dt><dd>${TIPO_USUARIO[r.tipoUsuario]}</dd><dt>Edad</dt><dd>${r.edad ?? "—"}</dd><dt>Rol</dt><dd>${r.rol === "observador" ? "Observador" : "Afectado"}</dd></dl>
+        <p class="desc">“${esc(inc.descripcion)}”</p>`
+        : inc.perfil ? `<p class="desc">Alerta SOS de una persona registrada: su ficha está en este panel.</p>` : `<p class="desc">Alerta SOS de una persona sin registro. Acudir a la ubicación GPS de inmediato.</p>`}
+      <h4>Análisis IA · ${CATEG[a.categoria] || a.categoria} · severidad ${a.severidad}</h4>
+      <p class="desc" style="font-style:normal">${esc(a.resumen)}</p>
+      <div class="recursos">${a.recursos.map((x) => `<span>${esc(x)}</span>`).join("")}</div>
+    </div>
+    ${afectadoHTML(inc)}
+    ${fichaHTML(inc.perfil, r?.rol === "observador" ? "Ficha de quien reporta (observador)" : "Ficha registrada")}
+    <div class="bloque">
+      <h4>Chat con el usuario</h4>
+      <div class="c-msgs" id="c-msgs">${inc.mensajes.map((m) => m.de === "sistema" ? `<div class="msg sistema">${esc(m.texto)}</div>`
+        : `<div class="msg ${m.de}">${esc(m.texto)}<small>${m.de === "usuario" ? "Usuario" : "Central"} · ${hora(m.ts)}</small></div>`).join("")}</div>
+      <div class="rapidas">${RAPIDAS.map((t) => `<button data-rapida="${esc(t)}">${esc(t)}</button>`).join("")}</div>
+      <form class="c-form" id="c-form"><input class="c-input" id="c-chat-in" data-inc="${inc.id}" placeholder="Escribe al usuario…" autocomplete="off" maxlength="500"><button>Enviar</button></form>
+    </div>
+  </div>`;
+  const ci = $("#c-chat-in"); ci.value = borrador; if (foco) ci.focus();
+  if (focoU) { const u = $("#c-unidad"); u.focus(); u.setSelectionRange(u.value.length, u.value.length); }
+  const cm = $("#c-msgs"); cm.scrollTop = cm.scrollHeight;
+  cont.querySelectorAll("[data-estado]").forEach((b) => b.addEventListener("click", () => {
+    if (S.sinSenal && inc.id === S.miIncidente) toast("El usuario no tiene señal: verá este cambio cuando se reconecte.");
+    cambiarEstado(inc.id, b.dataset.estado, $("#c-unidad").value.trim());
+  }));
+  cont.querySelectorAll("[data-rapida]").forEach((b) => b.addEventListener("click", () => chat(inc.id, "bomberos", b.dataset.rapida)));
+  $("#c-form").addEventListener("submit", (e) => { e.preventDefault(); chat(inc.id, "bomberos", ci.value); });
+}
+$("#c-lista").addEventListener("click", (e) => { const b = e.target.closest("[data-id]"); if (b) { S.sel = b.dataset.id; render(); } });
+$("#c-mapa").addEventListener("click", (e) => { const g = e.target.closest("[data-inc]"); if (g) { S.sel = g.dataset.inc; render(); } });
+
+/* ======================= Sonido ======================= */
+let ctx, sirena = null;
+function desbloquearAudio() { try { ctx = ctx || new (window.AudioContext || window.webkitAudioContext)(); ctx.resume(); } catch {} }
+function pitido() { if (!ctx) return; try { const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.value = 880; g.gain.value = .06; o.connect(g).connect(ctx.destination); o.start(); o.stop(ctx.currentTime + .15); } catch {} }
+function alarma() {
+  $("#silenciar").hidden = false;
+  if (!ctx || sirena) return;
+  try {
+    const o = ctx.createOscillator(), g = ctx.createGain(), l = ctx.createOscillator(), lg = ctx.createGain();
+    o.type = "sawtooth"; o.frequency.value = 750; g.gain.value = .04; l.frequency.value = 1.5; lg.gain.value = 300;
+    l.connect(lg).connect(o.frequency); o.connect(g).connect(ctx.destination); o.start(); l.start();
+    sirena = { o, l }; setTimeout(detenerAlarma, 8000);
+  } catch {}
+}
+function detenerAlarma() { if (sirena) { try { sirena.o.stop(); sirena.l.stop(); } catch {} sirena = null; } $("#silenciar").hidden = true; }
+$("#silenciar").addEventListener("click", detenerAlarma);
+
+/* ======================= Escenarios ======================= */
+const ESCENARIOS = {
+  desmayo: { tipo: "#tu-pro", nombre: "María González", edad: 34, rol: "observador", pos: { x: 260, y: 200 }, desc: "Mi compañero se desmayó en el auditorio y está convulsionando",
+    afectado: { nombre: "Carlos Mendoza", edad: 21 } },
+  incendio: { tipo: "#tu-lim", nombre: "Carlos Gómez", edad: 41, rol: "observador", pos: { x: 470, y: 90 }, desc: "Hay humo saliendo del laboratorio de química, se escucha una alarma" },
+};
+document.querySelectorAll("[data-escenario]").forEach((b) => b.addEventListener("click", () => {
+  const e = ESCENARIOS[b.dataset.escenario];
+  if (!S.yo) S.yo = { ...e.pos };
+  moverYo(e.pos);
+  ir("form");
+  if (!S.perfil.registrado) { $(e.tipo).checked = true; $("#f-nombre").value = e.nombre; $("#f-edad").value = e.edad; }
+  $(e.rol === "observador" ? "#rol-o" : "#rol-a").checked = true;
+  if (e.afectado) { $("#conoce-si").checked = true; $("#af-nombre").value = e.afectado.nombre; $("#af-edad").value = e.afectado.edad; }
+  else if (e.rol === "observador") $("#conoce-no").checked = true;
+  $("#f-desc").value = e.desc;
+  renderTelefono();
+}));
+$("#reiniciar").addEventListener("click", () => {
+  detenerAlarma();
+  S = estadoInicial();
+  $("#formulario").reset(); $("#form-registro").reset();
+  $("#t-toast").hidden = true;
+  ir("permiso");
+});
+
+function render() { renderTelefono(); renderCentral(); }
+setInterval(() => renderCentral(), 15000);
+S = estadoInicial();
+ir("permiso");
+
+</script>
